@@ -49,3 +49,25 @@ export const scrape = async (url) => {
   await writeTxtFile('html1', text)
   return cheerio.load(text)
 }
+
+export const convertToDecimalPriceLoan = (price) => {
+  let loan = false
+  const multipliers = {
+    'mil': 1000,
+    'mill': 1000000
+  };
+
+  const numericValue = parseFloat(price.replace(/[^\d.,]/g, '').replace(',', '.'));
+
+  if(price==="Préstamo" || price.includes("Tarifa de préstamo:")){
+      loan = true
+  }
+
+  const abbreviation = price.match(/mil+|mill+/i);
+  if (abbreviation && abbreviation[0]) {
+    const multiplier = multipliers[abbreviation[0].toLowerCase()];
+    return {price: numericValue * multiplier, loan};
+  }
+
+  return {price:numericValue, loan};
+};
