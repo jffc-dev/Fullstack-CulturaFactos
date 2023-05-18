@@ -18,7 +18,7 @@ const dateFormat = (date) => {
   ('00' + date.getSeconds()).slice(-2)
 }
 
-const writeLog = async(dbName) => {
+export const writeLog = async(dbName) => {
   const msg = `Leaderboard data was successfully scrapped ${dateFormat(new Date())}.\n`
   return appendFile(`${DB_LOGS}/${dbName}.txt`, msg, (err) => {
     if (err) throw err
@@ -27,7 +27,6 @@ const writeLog = async(dbName) => {
 }
 
 export const writeDBFile = async(dbName, data) => {
-  await writeLog(dbName)
   return writeFile(
     `${DB_PATH}/${dbName}.json`,
     JSON.stringify(data, null, 2),
@@ -36,7 +35,6 @@ export const writeDBFile = async(dbName, data) => {
 }
 
 export const writeTxtFile = async(dbName, data) => {
-  await writeLog(dbName)
   return writeFile(
     `${DB_PATH}/${dbName}.txt`,
     data,
