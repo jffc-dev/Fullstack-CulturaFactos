@@ -11,5 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "cheerio": "^1.0.0-rc.12"
+  },
+  "devDependencies": {
+    "dotenv": "16.0.3"
   }
 }
