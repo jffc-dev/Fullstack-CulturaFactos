@@ -4,10 +4,18 @@ const uniquePositions = new Set();
 const uniqueCountries = new Set();
 const uniqueClubs = new Set();
 
-const getPlayersByTeam = async (urlBase, teams) => {
+const getPlayersByTeam = async (urlBase, teams, specificTeams) => {
     const arrayTeams = await readDBFile(teams)
     const players = []
-    for (const teamUrl of arrayTeams) {
+    const filteredTeams = arrayTeams.filter((team)=>{
+        if(specificTeams.length > 0){
+            return specificTeams.includes(team) ? true : false
+        }else{
+            return true
+        }
+    })
+
+    for (const teamUrl of filteredTeams) {
         const $ = await scrape(urlBase + teamUrl)
         const $rows = $('table.items>tbody>tr table .hauptlink')
         for (let i = 0; i < $rows.length; i++) {
@@ -15,13 +23,13 @@ const getPlayersByTeam = async (urlBase, teams) => {
             const playerUrl = $el.find("a").attr('href');
             const infoPlayer = await getPlayerInfo(playerUrl, urlBase);
             players.push(infoPlayer);
-            console.log(teamUrl + ' | ' + infoPlayer.name);
+            console.log('-------------' + teamUrl + ' | ' + infoPlayer.name);
         }
     }
     return players
 }
 
-const formatObject = (objetoOriginal, nombres, nationality) => {
+const formatObject = (objetoOriginal, nombres, nationality, url, positions, history) => {
     let playerName = ""
     if(nombres.split('\n')[1]){
         playerName = nombres.split('\n')[1].trim();
@@ -38,14 +46,18 @@ const formatObject = (objetoOriginal, nombres, nationality) => {
     })
 
     const partsDate = objetoOriginal['Fecha de nacimiento:'].split("/");
+    const height = objetoOriginal['Altura:'] ? parseFloat(objetoOriginal['Altura:'].replace(/[^\d.,]/g, '').replace(',', '.')) * 100 : null
 
     return {
-      'dataBirthdate': new Date(partsDate[2], partsDate[1] - 1, partsDate[0]),
-      'height': parseFloat(objetoOriginal['Altura:'].replace(/[^\d.,]/g, '').replace(',', '.')) * 100,
-      'foot': objetoOriginal['Pie:'],
-      'fullName': objetoOriginal['Nombre en país de origen:'],
-      'name': playerName,
-      'nationalities': objectNationalities
+        'dataBirthdate': new Date(partsDate[2], partsDate[1] - 1, partsDate[0]),
+        'height': height,
+        'foot': objetoOriginal['Pie:'],
+        'fullName': objetoOriginal['Nombre en país de origen:'],
+        'name': playerName,
+        'url': url,
+        'nationalities': objectNationalities,
+        'positions':positions,
+        'transfers': history
     };
 }
 
@@ -64,8 +76,7 @@ const getPlayerInfo = async (url, urlBase) => {
     const positions = getPositionsPlayer($)
     const name = $('h1').text().trim()
     const nationality = $('.data-header__items .data-header__label span[itemprop="nationality"]').text().trim()
-    let objectData = formatObject(Object.fromEntries(data), name, nationality)
-    objectData = {...objectData, positions, transfers: history}
+    let objectData = formatObject(Object.fromEntries(data), name, nationality, url, positions, history)
     return objectData
 }
 
@@ -89,9 +100,11 @@ const getTransferHistory = async($, urlBase) => {
             const first_clubTag = $el.find('.tm-player-transfer-history-grid__old-club')
             const first_clubName = first_clubTag.text().trim()
             const first_clubUrlTransfer = first_clubTag.find('a').attr('href')
-            const first_clubUrl = await getUrlTeam(urlBase + first_clubUrlTransfer)
-            uniqueClubs.add(first_clubUrl)
-            history.push({date: null, club: {name: first_clubName, url: first_clubUrl}, price: 0, loan: false})
+            if(first_clubName !== 'Desconocido'){
+                const first_clubUrl = await getUrlTeam(urlBase + first_clubUrlTransfer)
+                uniqueClubs.add(first_clubUrl)
+                history.push({date: null, club: {name: first_clubName, url: first_clubUrl}, price: 0, loan: false})
+            }
         }
         index++
     }
@@ -126,8 +139,8 @@ const getPositionsPlayer = ($) => {
     return positions
 }
 
-export const getFullInfoPlayers = async(urlBase, teamsFile) => {
-    const players = await getPlayersByTeam(urlBase, teamsFile)
+export const getFullInfoPlayers = async(urlBase, teamsFile, specificTeams) => {
+    const players = await getPlayersByTeam(urlBase, teamsFile, specificTeams)
     const combinedUniquePositions = await getLastUniqueInfo('positions',uniquePositions)
     const combinedUniqueCountries = await getLastUniqueInfo('countries',uniqueCountries)
     const combinedUniqueClubs = await getLastUniqueInfo('clubs',uniqueClubs)
