@@ -161,10 +161,13 @@ export const getUniqueInfo = async(files) => {
     const uniquePositionsSet = new Set();
     const uniqueCountriesSet = new Set();
     const uniqueClubsSet = new Set();
+    const uniquePlayersSet = new Set();
 
     for (const file of files) {
         const arrayPlayers = await readDBFile(file)
         for (const player of arrayPlayers) {
+            uniquePlayersSet.add(player.url)
+            
             for (const nationality of player.nationalities) {
                 uniqueCountriesSet.add(nationality.country)
             }
@@ -172,9 +175,6 @@ export const getUniqueInfo = async(files) => {
                 uniquePositionsSet.add(position.position)
             }
             for (const transfer of player.transfers) {
-                if(!transfer.club.url){
-                    console.log(player);
-                }
                 uniqueClubsSet.add(transfer.club.url)
             }
         }
@@ -183,8 +183,10 @@ export const getUniqueInfo = async(files) => {
     const combinedUniquePositions = await getLastUniqueInfo('positions',uniquePositionsSet)
     const combinedUniqueCountries = await getLastUniqueInfo('countries',uniqueCountriesSet)
     const combinedUniqueClubs = await getLastUniqueInfo('clubs',uniqueClubsSet)
+    const combinedUniquePlayers = await getLastUniqueInfo('players',uniquePlayersSet)
 
     await writeDBFile('clubs', Array.from(combinedUniqueClubs))
     await writeDBFile('countries', Array.from(combinedUniqueCountries))
     await writeDBFile('positions', Array.from(combinedUniquePositions))
+    await writeDBFile('players', Array.from(combinedUniquePlayers))
 }
