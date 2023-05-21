@@ -44,7 +44,6 @@ export const writeTxtFile = async(dbName, data) => {
 
 export const scrape = async (url) => {
   const text = await fetch(url).then((response) => response.text())
-  await writeTxtFile('html1', text)
   return cheerio.load(text)
 }
 
