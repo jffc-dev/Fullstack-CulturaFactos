@@ -180,13 +180,13 @@ export const getUniqueInfo = async(files) => {
         }
     }
 
-    const combinedUniquePositions = await getLastUniqueInfo('positions',uniquePositionsSet)
-    const combinedUniqueCountries = await getLastUniqueInfo('countries',uniqueCountriesSet)
-    const combinedUniqueClubs = await getLastUniqueInfo('clubs',uniqueClubsSet)
-    const combinedUniquePlayers = await getLastUniqueInfo('players',uniquePlayersSet)
+    const combinedUniquePositions = await getLastUniqueInfo('uniqueInfo/positions',uniquePositionsSet)
+    const combinedUniqueCountries = await getLastUniqueInfo('uniqueInfo/countries',uniqueCountriesSet)
+    const combinedUniqueClubs = await getLastUniqueInfo('uniqueInfo/clubs',uniqueClubsSet)
+    const combinedUniquePlayers = await getLastUniqueInfo('uniqueInfo/players',uniquePlayersSet)
 
-    await writeDBFile('clubs', Array.from(combinedUniqueClubs))
-    await writeDBFile('countries', Array.from(combinedUniqueCountries))
-    await writeDBFile('positions', Array.from(combinedUniquePositions))
-    await writeDBFile('players', Array.from(combinedUniquePlayers))
+    await writeDBFile('uniqueInfo/clubs', Array.from(combinedUniqueClubs))
+    await writeDBFile('uniqueInfo/countries', Array.from(combinedUniqueCountries))
+    await writeDBFile('uniqueInfo/positions', Array.from(combinedUniquePositions))
+    await writeDBFile('uniqueInfo/players', Array.from(combinedUniquePlayers))
 }
