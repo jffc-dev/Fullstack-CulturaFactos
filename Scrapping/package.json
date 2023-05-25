@@ -10,7 +10,8 @@
   "author": "javier flores cardenas",
   "license": "ISC",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.12"
+    "cheerio": "^1.0.0-rc.12",
+    "mongodb": "5.5.0"
   },
   "devDependencies": {
     "dotenv": "16.0.3"
