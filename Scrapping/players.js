@@ -144,7 +144,7 @@ export const getFullInfoPlayers = async(urlBase, teamsFile, specificTeams) => {
     const combinedUniquePositions = await getLastUniqueInfo('positions',uniquePositions)
     const combinedUniqueCountries = await getLastUniqueInfo('countries',uniqueCountries)
     const combinedUniqueClubs = await getLastUniqueInfo('clubs',uniqueClubs)
-    await writeDBFile('players_'+teamsFile, players)
+    await writeDBFile('playersByTeam/players_'+teamsFile, players)
     await writeDBFile('clubs', Array.from(combinedUniqueClubs))
     await writeDBFile('countries', Array.from(combinedUniqueCountries))
     await writeDBFile('positions', Array.from(combinedUniquePositions))
