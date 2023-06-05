@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+import { MongoClient } from 'mongodb'
 
 // Configura la URL de conexión de MongoDB
 const url = 'mongodb://localhost:27017';
