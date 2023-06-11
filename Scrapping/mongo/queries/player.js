@@ -1,0 +1,1 @@
+db.player.createIndex({ url: 1 }, { unique: true });
