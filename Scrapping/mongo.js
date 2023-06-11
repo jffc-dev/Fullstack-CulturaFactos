@@ -11,7 +11,7 @@ const client = new MongoClient(url, {
 });
 
 // Función para conectar a la base de datos
-const conectarDB = () => {
+const connectDB = () => {
   // Crea un nuevo cliente de MongoDB
   return new Promise((resolve, reject) => {
     // Conecta con el servidor de MongoDB
@@ -38,7 +38,7 @@ const conectarDB = () => {
 export const list = async(coleccion) => {
   try {
     // Conecta a la base de datos
-    const db = await conectarDB();
+    const db = await connectDB();
 
     // Obtiene la referencia a la colección
     const collection = db.collection(coleccion);
@@ -58,7 +58,7 @@ export const list = async(coleccion) => {
 export const createOne = async(coleccion, documento) => {
   try {
     // Conecta a la base de datos
-    const db = await conectarDB();
+    const db = await connectDB();
 
     // Obtiene la referencia a la colección
     const collection = db.collection(coleccion);
@@ -70,6 +70,25 @@ export const createOne = async(coleccion, documento) => {
 
   } catch (error) {
     console.error('Error al insertar el documento:', error);
+    throw error;
+  }
+}
+
+// Function to insert a document into a collection
+export const createMultiple = async (collection, documents) => {
+  try {
+    // Connect to the database
+    const db = await connectDB();
+    // Get the reference to the collection
+    const query = db.collection(collection);
+    const result = await query.insertMany(documents);
+
+    // Close the connection when finished
+    client.close();
+    return result;
+
+  } catch (error) {
+    console.error('Error inserting the document:', error);
     throw error;
   }
 }
