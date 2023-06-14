@@ -1,4 +1,4 @@
-import { writeDBFile, scrape } from './utils.js'
+import { writeDBFile, scrape, readDBFile } from './utils.js'
 
 const getTeamsByLeague = async(url) => {
     const $ = await scrape(url)
@@ -12,7 +12,20 @@ const getTeamsByLeague = async(url) => {
     return teams
 }
 
-export const getFullInfoTeams = async(urlBase, urlLeague, fileName) => {
+export const getNameTeams = async(urlBase, urlLeague, fileName) => {
     const teams = await getTeamsByLeague(urlBase+urlLeague)
     await writeDBFile("teamsByLeague/"+fileName, teams)
+}
+
+export const getFullInfoTeams = async() => {
+
+}
+
+export const getUniqueTeams = async() => {
+    let arrayTeams = await readDBFile('/uniqueInfo/clubs')
+    //filter only not null teams
+    arrayTeams = arrayTeams.filter(team => team !== null)
+    //filter unique info with a set
+    const setTeams = new Set(arrayTeams)
+    return setTeams
 }
