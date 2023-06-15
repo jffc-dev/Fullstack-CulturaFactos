@@ -17,8 +17,29 @@ export const getNameTeams = async(urlBase, urlLeague, fileName) => {
     await writeDBFile("teamsByLeague/"+fileName, teams)
 }
 
-export const getFullInfoTeams = async() => {
+export const getFullInfoTeams = async(urlBase, setTeams) => {
+    let index = 0
+    for (const urlTeam of setTeams) {
+        if (index > 2) return 
+        const scrappedData = await scrapeTeamInfo(urlBase, urlTeam)
+        console.log(scrappedData);
+        index++
+    }
+}
 
+const scrapeTeamInfo = async(urlBase, url) => {
+    const $ = await scrape(urlBase+url)
+    const teamName = $("h1.data-header__headline-wrapper").text().trim()
+    const successesLink = '/'+url.split('/')[1]+'/erfolge/'+url.split('/')[3]+'/'+url.split('/')[4]
+    const foundationDateStr = $('span[itemprop="foundingDate"]').text().trim()
+    const foundationDate = foundationDateStr ? new Date(foundationDateStr.split("/")[2], foundationDateStr.split("/")[1] - 1, foundationDateStr.split("/")[0]) : null;
+
+    return {
+        'teamName': teamName,
+        'url': url,
+        'successesLink': successesLink,
+        'foundationDate': foundationDate
+    }
 }
 
 export const getUniqueTeams = async() => {
@@ -28,4 +49,9 @@ export const getUniqueTeams = async() => {
     //filter unique info with a set
     const setTeams = new Set(arrayTeams)
     return setTeams
+}
+
+export const writeInfoTeamsFile = async(urlBase) => {
+    const setTeams = await getUniqueTeams()
+    await getFullInfoTeams(urlBase, setTeams)
 }
