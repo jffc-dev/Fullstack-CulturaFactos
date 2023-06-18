@@ -18,17 +18,30 @@ export const getNameTeams = async(urlBase, urlLeague, fileName) => {
 }
 
 export const getFullInfoTeams = async(urlBase, setTeams) => {
+    const teamsArray = [];
+    const stadiumsArray = [];
     let index = 0
     for (const urlTeam of setTeams) {
-        if (index > 2) return 
-        const scrappedData = await scrapeTeamInfo(urlBase, urlTeam)
-        console.log(scrappedData);
+        if (index > 2) break 
+        const $ = await scrape(urlBase+urlTeam)
+        const scrappedDataTeam = scrapeTeamInfo($, urlTeam)
+        const scrappedDataStadium = scrapeStadiumInfo($)
+        
+        addUniqueToArray(teamsArray, scrappedDataTeam)
+        addUniqueToArray(stadiumsArray, scrappedDataStadium)
         index++
     }
 }
 
-const scrapeTeamInfo = async(urlBase, url) => {
-    const $ = await scrape(urlBase+url)
+const addUniqueToArray = (array, element) => {
+    const found = array.find((el)=>el.link === element.link)
+    if(!found){
+        array.push(element)
+    }
+}
+
+const scrapeTeamInfo = ($, url) => {
+    
     const teamName = $("h1.data-header__headline-wrapper").text().trim()
     const successesLink = '/'+url.split('/')[1]+'/erfolge/'+url.split('/')[3]+'/'+url.split('/')[4]
     const foundationDateStr = $('span[itemprop="foundingDate"]').text().trim()
@@ -36,9 +49,24 @@ const scrapeTeamInfo = async(urlBase, url) => {
 
     return {
         'teamName': teamName,
-        'url': url,
+        'link': url,
         'successesLink': successesLink,
         'foundationDate': foundationDate
+    }
+}
+
+const scrapeStadiumInfo = ($) => {
+    const stadiumElement = $('ul.data-header__items li.data-header__label')[4];
+    const $stadiumElement = $(stadiumElement);
+    const stadiumLink = $stadiumElement.find("a").attr('href');
+    const stadiumName = $stadiumElement.find("a").text().trim();
+    const stadiumCapacityText = $stadiumElement.find('.tabellenplatz').text().trim();
+    const capacidadStadium = parseInt(stadiumCapacityText.split(' ')[0].replace('.',''));
+
+    return {
+        'link': stadiumLink,
+        'name': stadiumName,
+        'capacity': capacidadStadium
     }
 }
 
