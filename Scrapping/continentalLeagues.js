@@ -1,7 +1,7 @@
-import { scrape } from "./utils.js";
+import { readDBFileOrCreate, scrape, writeDBFile } from "./utils.js";
 
-export const scrapLeagues = async(urlLeagues, urlLeagueBase) => {
-    const leaguesArray = [];
+export const scrapLeagues = async(urlLeagues, urlLeagueBase, urlBase) => {
+    const leaguesArray = await readDBFileOrCreate('leagues','json',[])
     for (const leagueUrl of urlLeagues) {
         const urlLeague = urlLeagueBase.replace('#LEAGUE#', leagueUrl)
 
@@ -15,10 +15,23 @@ export const scrapLeagues = async(urlLeagues, urlLeagueBase) => {
                 const $el = $(leaguesPerPage[j])
                 const leagueName = $el.text().trim()
                 const leagueUrl = $el.attr('href')
-                leaguesArray.push({
-                    'link': leagueUrl,
-                    'name': leagueName
-                }) 
+
+                const validation = leaguesArray.find(league => league.link === leagueUrl)
+
+                if(!validation){
+                    const $leagueDetail = await scrape(urlBase+leagueUrl);
+                    const leagueFullname = $leagueDetail('h1.data-header__headline-wrapper').text().trim();
+                    const leagueImage = $leagueDetail('.data-header__profile-container img').attr('src');
+                    const leagueCountry = $leagueDetail('.data-header__box--big .data-header__club a').text().trim();
+                    leaguesArray.push({
+                        'link': leagueUrl,
+                        'shortname': leagueName,
+                        'fullname': leagueFullname,
+                        'image': leagueImage,
+                        'country': leagueCountry
+                    })
+                    writeDBFile('leagues',leaguesArray)
+                }
             }
         }
     }
