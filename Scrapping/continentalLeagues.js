@@ -1,7 +1,8 @@
 import { readDBFileOrCreate, scrape, writeDBFile } from "./utils.js";
 
 export const scrapLeagues = async(urlLeagues, urlLeagueBase, urlBase) => {
-    const leaguesArray = await readDBFileOrCreate('leagues','json',[])
+    const fileName = 'leagues'
+    const leaguesArray = await readDBFileOrCreate(fileName,'json',[])
     for (const leagueUrl of urlLeagues) {
         const urlLeague = urlLeagueBase.replace('#LEAGUE#', leagueUrl)
 
@@ -30,7 +31,7 @@ export const scrapLeagues = async(urlLeagues, urlLeagueBase, urlBase) => {
                         'image': leagueImage,
                         'country': leagueCountry
                     })
-                    writeDBFile('leagues',leaguesArray)
+                    writeDBFile(fileName,leaguesArray)
                 }
             }
         }
