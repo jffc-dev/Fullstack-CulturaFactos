@@ -46,12 +46,16 @@ const scrapeTeamInfo = ($, url) => {
     const successesLink = '/'+url.split('/')[1]+'/erfolge/'+url.split('/')[3]+'/'+url.split('/')[4]
     const foundationDateStr = $('span[itemprop="foundingDate"]').text().trim()
     const foundationDate = foundationDateStr ? new Date(foundationDateStr.split("/")[2], foundationDateStr.split("/")[1] - 1, foundationDateStr.split("/")[0]) : null;
+    const stadiumElement = $('ul.data-header__items li.data-header__label')[4];
+    const $stadiumElement = $(stadiumElement);
+    const stadiumLink = $stadiumElement.find("a").attr('href');
 
     return {
         'teamName': teamName,
         'link': url,
         'successesLink': successesLink,
-        'foundationDate': foundationDate
+        'foundationDate': foundationDate,
+        'stadiumLink': stadiumLink
     }
 }
 
