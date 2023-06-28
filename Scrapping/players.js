@@ -190,3 +190,9 @@ export const getUniqueInfo = async(files) => {
     await writeDBFile('uniqueInfo/positions', Array.from(combinedUniquePositions))
     await writeDBFile('uniqueInfo/players', Array.from(combinedUniquePlayers))
 }
+
+//get player info piece by piece
+export const getPlayersInfoPiece = async(baseFile, destinationFile) => {
+    const arrayTeams = await readDBFile(destinationFile)
+    console.log(arrayTeams);
+}
