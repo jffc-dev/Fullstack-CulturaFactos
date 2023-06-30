@@ -84,3 +84,15 @@ export const scrapLeagues = async(urlLeagues, urlLeagueBase, urlBase) => {
     return leaguesArray;
 }
 
+export const getUniqueCupTypes = async() => {
+    const fileName = 'leagues'
+    const leaguesArray = await readDBFileOrCreate(fileName,'json',[])
+
+    const uniqueTypes = leaguesArray.reduce((types, item) => {
+        types.add(item.type);
+        return types;
+      }, new Set());
+      
+      console.log([...uniqueTypes]);
+}
+
