@@ -76,7 +76,9 @@ export const scrapLeagues = async(urlLeagues, urlLeagueBase, urlBase) => {
         }
     }
 
-    getUniqueCupTypes(fileName);
+    await getUniqueCupTypes(fileName);
+
+    await getDetailsLeagues(leaguesArray, urlBase);
 
     return leaguesArray;
 }
@@ -93,10 +95,35 @@ export const getUniqueCupTypes = async(leaguesFyle) => {
     await readDBFileOrCreate(fileName,'json',uniqueTypes)
 }
 
-export const getDetailLeague = async(leaguesArray, urlBase) => {
+export const getDetailsLeagues = async(leaguesArray, urlBase) => {
     const SEASON_SUFIX = '/plus/?saison_id='
     const fileName = 'seasonsByLeague'
     const seasonsByLeagueArray = await readDBFileOrCreate(fileName,'json',[])
+
+    const getTeamsBySeason = async(unique, fullLink, scrape, urlBase) => {
+        let $scrape = scrape
+        if(!unique){
+            $scrape = await scrape(fullLink);
+        }
+
+        const teamsPageLink = $scrape('div.data-header__box--small a').attr('href')
+        const $teamsPage = await scrape(urlBase+teamsPageLink);
+
+        const teams = []
+        const $rows = $teamsPage('table.items > tbody > tr td.hauptlink')
+
+        for (let i = 0; i < $rows.length; i++) {
+            const $el = $($rows[i])
+            const teamLink = $el.find("a").attr('href')
+            const teamName = $el.find("a").text().trim()
+            teams.push({
+                'link': teamLink,
+                'name': teamName
+            })
+        }
+
+        return teams
+    }
 
     for (let index = 0; index < leaguesArray.length; index++) {
         const dataLeague = leaguesArray[index]
@@ -109,9 +136,15 @@ export const getDetailLeague = async(leaguesArray, urlBase) => {
             const validation = seasonsByLeagueArray.find(season => season.link === seasonYearLink)
 
             if(!validation){
+                const teams = await getTeamsBySeason(true, seasonYearLink, $leaguePage, urlBase);
 
+                seasonsByLeagueArray.push({
+                    'linkLeague': cupdataLeague.linkUrl,
+                    'link': cupdataLeague.linkUrl,
+                    'season': 'unique',
+                    'teams': teams
+                })
             }
-            seasonsByLeagueArray
         }
 
         for (let j = 0; j < seasons.length; j++) {
@@ -122,7 +155,14 @@ export const getDetailLeague = async(leaguesArray, urlBase) => {
             const validation = seasonsByLeagueArray.find(season => season.link === seasonYearLink)
 
             if(!validation){
+                const teams = await getTeamsBySeason(false, seasonYearLink, null, urlBase);
 
+                seasonsByLeagueArray.push({
+                    'linkLeague': cupdataLeague.linkUrl,
+                    'link': cupdataLeague.linkUrl,
+                    'season': parseInt(seasonYear).toString(),
+                    'teams': teams
+                })
             }
         }
     }
