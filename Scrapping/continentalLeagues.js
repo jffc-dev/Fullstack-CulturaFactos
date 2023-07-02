@@ -4,12 +4,6 @@ export const scrapLeagues = async(urlLeagues, urlLeagueBase, urlBase) => {
     const fileName = 'leagues'
     const leaguesArray = await readDBFileOrCreate(fileName,'json',[])
 
-    const uniqueTypes = leaguesArray.reduce((types, item) => {
-        types.add(item.type);
-        return types;
-      }, new Set());
-      
-      console.log([...uniqueTypes]);
     for (const leagueUrl of urlLeagues) {
         const urlLeague = urlLeagueBase.replace('#LEAGUE#', leagueUrl)
 
@@ -81,18 +75,56 @@ export const scrapLeagues = async(urlLeagues, urlLeagueBase, urlBase) => {
             }
         }
     }
+
+    getUniqueCupTypes(fileName);
+
     return leaguesArray;
 }
 
-export const getUniqueCupTypes = async() => {
-    const fileName = 'leagues'
-    const leaguesArray = await readDBFileOrCreate(fileName,'json',[])
+export const getUniqueCupTypes = async(leaguesFyle) => {
+    const fileName = 'leagueTypes'
+    const leaguesArray = await readDBFileOrCreate(leaguesFyle,'json',[])
 
     const uniqueTypes = leaguesArray.reduce((types, item) => {
         types.add(item.type);
         return types;
-      }, new Set());
+    }, new Set());
       
-      console.log([...uniqueTypes]);
+    await readDBFileOrCreate(fileName,'json',uniqueTypes)
+}
+
+export const getDetailLeague = async(leaguesArray, urlBase) => {
+    const SEASON_SUFIX = '/plus/?saison_id='
+    const fileName = 'seasonsByLeague'
+    const seasonsByLeagueArray = await readDBFileOrCreate(fileName,'json',[])
+
+    for (let index = 0; index < leaguesArray.length; index++) {
+        const dataLeague = leaguesArray[index]
+        const $leaguePage = await scrape(urlBase + dataLeague.link);
+
+        const seasons = $leaguePage('ul.chzn-results li');
+
+        if(seasons.length < 0){
+            const seasonYearLink = urlBase + dataLeague.link + SEASON_SUFIX + (parseInt(seasonYear) - 1).toString()
+            const validation = seasonsByLeagueArray.find(season => season.link === seasonYearLink)
+
+            if(!validation){
+
+            }
+            seasonsByLeagueArray
+        }
+
+        for (let j = 0; j < seasons.length; j++) {
+            const $season = $(seasons[j])
+            const seasonYear = $season.text().trim()
+
+            const seasonYearLink = urlBase + dataLeague.link + SEASON_SUFIX + (parseInt(seasonYear) - 1).toString()
+            const validation = seasonsByLeagueArray.find(season => season.link === seasonYearLink)
+
+            if(!validation){
+
+            }
+        }
+    }
 }
 
