@@ -1,4 +1,4 @@
-import { writeFile, readFile, appendFile } from 'node:fs/promises'
+import { writeFile, readFile, appendFile, access } from 'node:fs/promises'
 import path from 'node:path'
 import * as cheerio from 'cheerio'
 
@@ -7,6 +7,23 @@ const DB_LOGS = path.join(process.cwd(), 'logs')
 
 export const readDBFile = (fileName) => {
   return readFile(`${DB_PATH}/${fileName}.json`, 'utf-8').then(JSON.parse)
+}
+
+export const readDBFileOrCreate = async(nameFile, typeFile, content) => {
+  const pathFile = `${DB_PATH}/${nameFile}.${typeFile}`;
+
+  try {
+    await access(pathFile);
+    const fileContent = await readFile(pathFile, 'utf-8');
+    return JSON.parse(fileContent || '[]');
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      // El archivo no existe, crearlo con contenido vacío
+      await writeFile(pathFile, JSON.stringify(content));
+      return content;
+    }
+    throw error;
+  }
 }
 
 const dateFormat = (date) => {
@@ -26,7 +43,7 @@ export const writeLog = async(dbName) => {
   })
 }
 
-export const writeDBFile = async(dbName, data) => {
+export const writeDBFile = (dbName, data) => {
   return writeFile(
     `${DB_PATH}/${dbName}.json`,
     JSON.stringify(data, null, 2),
