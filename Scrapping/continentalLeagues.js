@@ -103,9 +103,11 @@ export const getUniqueCupTypes = async(leaguesFyle) => {
         return types;
     }, new Set());
 
-    console.log(`2.1. LEAGUE TYPES: ${uniqueTypes.length} types were found.`)
+    const arrayTypes = Array.from(uniqueTypes)
+
+    console.log(`2.1. LEAGUE TYPES: ${arrayTypes.length} types were found.`)
       
-    await readDBFileOrCreate(fileName,'json',uniqueTypes)
+    writeDBFile(fileName,arrayTypes)
 }
 
 export const getDetailsLeagues = async(leaguesArray, urlBase) => {
@@ -147,17 +149,17 @@ export const getDetailsLeagues = async(leaguesArray, urlBase) => {
     }
 
     for (let index = 0; index < leaguesArray.length; index++) {
+        const dataLeague = leaguesArray[index]
         console.log(`3.2. LEAGUE DETAILS: ${dataLeague.link} league details will be validated.`)
 
-        const dataLeague = leaguesArray[index]
         const $leaguePage = await scrape(urlBase + dataLeague.link);
 
         const seasons = $leaguePage('ul.chzn-results li');
 
-        console.log(`3.3. LEAGUE DETAILS: ${dataLeague.link} league has ${seasons} seasons.`)
+        console.log(`3.3. LEAGUE DETAILS: ${dataLeague.link} league has ${seasons.length} seasons.`)
 
-        if(seasons.length < 0){
-            const seasonYearLink = urlBase + dataLeague.link + SEASON_SUFIX + (parseInt(seasonYear) - 1).toString()
+        if(seasons.length <= 0){
+            const seasonYearLink = urlBase + dataLeague.link
             const validation = seasonsByLeagueArray.find(season => season.link === seasonYearLink)
 
             if(!validation){
@@ -171,6 +173,8 @@ export const getDetailsLeagues = async(leaguesArray, urlBase) => {
                     'season': 'unique',
                     'teams': teams
                 })
+
+                writeDBFile(fileName,seasonsByLeagueArray)
             }
         }
 
@@ -192,6 +196,8 @@ export const getDetailsLeagues = async(leaguesArray, urlBase) => {
                     'season': parseInt(seasonYear).toString(),
                     'teams': teams
                 })
+
+                writeDBFile(fileName,seasonsByLeagueArray)
             }
         }
     }
