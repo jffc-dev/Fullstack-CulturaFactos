@@ -113,30 +113,38 @@ export const getUniqueCupTypes = async(leaguesFyle) => {
 export const getDetailsLeagues = async(leaguesArray, urlBase) => {
     console.log(`3. LEAGUE DETAILS.`)
 
-    const SEASON_SUFIX = '/plus/?saison_id='
+    const SEASON_SUFIX = '?saison_id='
     const fileName = 'seasonsByLeague'
     const seasonsByLeagueArray = await readDBFileOrCreate(fileName,'json',[])
 
     console.log(`3.1. LEAGUE DETAILS: ${seasonsByLeagueArray.length} league details were found in the file.`)
 
-    const getTeamsBySeason = async(unique, fullLink, scrape, urlBase) => {
+    const getTeamsBySeason = async(unique, fullLink, scrapedPage, urlBase) => {
         console.log(`3.3.1. LEAGUE DETAILS TEAMS.`)
+        const replaceableString = 'startseite'
+        const newString = 'teilnehmer'
 
-        let $scrape = scrape
-        if(!unique){
-            $scrape = await scrape(fullLink);
-        }
+        const teamsPageLink = fullLink.replace(replaceableString, newString)
 
-        const teamsPageLink = $scrape('div.data-header__box--small a').attr('href')
+        // let $scrape = scrapedPage
+        // if(!unique){
+        //     $scrape = await scrape(fullLink);
+        // }
+
+        //get teams by season link
+        // const teamsPageLink = $scrape('ul#submenu li#resumen a').attr('href')
+
+        console.log(`3.3.2. LEAGUE DETAILS TEAMS: Fulllink: ${urlBase+teamsPageLink}.`)
+
         const $teamsPage = await scrape(urlBase+teamsPageLink);
 
         const teams = []
         const $rows = $teamsPage('table.items > tbody > tr td.hauptlink')
 
-        console.log(`3.3.2. LEAGUE DETAILS TEAMS: ${fullLink} detail league has ${$rows.length} teams.`)
+        console.log(`3.3.3. LEAGUE DETAILS TEAMS: Fulllink: ${fullLink}, ${urlBase+teamsPageLink} detail teams league has ${$rows.length} teams.`)
 
         for (let i = 0; i < $rows.length; i++) {
-            const $el = $($rows[i])
+            const $el = $teamsPage($rows[i])
             const teamLink = $el.find("a").attr('href')
             const teamName = $el.find("a").text().trim()
             teams.push({
@@ -154,12 +162,13 @@ export const getDetailsLeagues = async(leaguesArray, urlBase) => {
 
         const $leaguePage = await scrape(urlBase + dataLeague.link);
 
-        const seasons = $leaguePage('ul.chzn-results li');
+        const seasonsScrap = $leaguePage('select[name="saison_id"] option');
+        const seasons = seasonsScrap.map((index, element) => $leaguePage(element).attr('value')).get();
 
         console.log(`3.3. LEAGUE DETAILS: ${dataLeague.link} league has ${seasons.length} seasons.`)
 
         if(seasons.length <= 0){
-            const seasonYearLink = urlBase + dataLeague.link
+            const seasonYearLink = dataLeague.link
             const validation = seasonsByLeagueArray.find(season => season.link === seasonYearLink)
 
             if(!validation){
@@ -168,8 +177,8 @@ export const getDetailsLeagues = async(leaguesArray, urlBase) => {
                 console.log(`3.4. LEAGUE DETAILS: ${dataLeague.link} league unique details will be added.`)
 
                 seasonsByLeagueArray.push({
-                    'linkLeague': cupdataLeague.linkUrl,
-                    'link': cupdataLeague.linkUrl,
+                    'linkLeague': dataLeague.link,
+                    'link': seasonYearLink,
                     'season': 'unique',
                     'teams': teams
                 })
@@ -179,10 +188,9 @@ export const getDetailsLeagues = async(leaguesArray, urlBase) => {
         }
 
         for (let j = 0; j < seasons.length; j++) {
-            const $season = $(seasons[j])
-            const seasonYear = $season.text().trim()
+            const seasonYear = seasons[j]
 
-            const seasonYearLink = urlBase + dataLeague.link + SEASON_SUFIX + (parseInt(seasonYear) - 1).toString()
+            const seasonYearLink = dataLeague.link + SEASON_SUFIX + seasonYear
             const validation = seasonsByLeagueArray.find(season => season.link === seasonYearLink)
 
             if(!validation){
@@ -191,8 +199,8 @@ export const getDetailsLeagues = async(leaguesArray, urlBase) => {
                 console.log(`3.4. LEAGUE DETAILS: ${dataLeague.link} league ${parseInt(seasonYear).toString()} details will be added.`)
 
                 seasonsByLeagueArray.push({
-                    'linkLeague': cupdataLeague.linkUrl,
-                    'link': cupdataLeague.linkUrl,
+                    'linkLeague': dataLeague.link,
+                    'link': seasonYearLink,
                     'season': parseInt(seasonYear).toString(),
                     'teams': teams
                 })
@@ -203,3 +211,9 @@ export const getDetailsLeagues = async(leaguesArray, urlBase) => {
     }
 }
 
+export const cleanSeasonsByLeague = async() => {
+    const fileName = 'seasonsByLeague'
+    const seasonsByLeagueArray = await readDBFileOrCreate(fileName,'json',[])
+    const filter = seasonsByLeagueArray.filter(season => season.teams.length !== 0)
+    writeDBFile(fileName,filter)
+}
