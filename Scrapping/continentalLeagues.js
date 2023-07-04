@@ -1,6 +1,6 @@
 import { scrapeStadiumInfo, scrapeTeamInfo } from "./teams.js";
 import { readDBFileOrCreate, scrape, writeDBFile } from "./utils.js";
-import { EXCLUDED_LEAGUE_SEASONS, NATIONAL_LEAGUE } from "./utils/consts.js";
+import { NATIONAL_LEAGUE, STEP_1_CLEANINVALIDTEAMS, STEP_2_CLEANSEASONTEAMS } from "./utils/consts.js";
 
 export const scrapLeagues = async(urlLeagues, urlLeagueBase, urlBase) => {
     
@@ -89,9 +89,9 @@ export const scrapLeagues = async(urlLeagues, urlLeagueBase, urlBase) => {
 
     await getUniqueCupTypes(fileName);
 
-    await getDetailsLeagues(leaguesArray, urlBase, false);
+    await getDetailsLeagues(leaguesArray, urlBase, true);
 
-    const cleanedSeasonsByLeagueArray = await cleanTeamsLinksInSeasonsByLeague()
+    const cleanedSeasonsByLeagueArray = await cleanTeamsLinksInSeasonsByLeague(false,STEP_2_CLEANSEASONTEAMS,false)
 
     const listOfTeams = getUniqueTeams(cleanedSeasonsByLeagueArray)
 
@@ -174,11 +174,6 @@ export const getDetailsLeagues = async(leaguesArray, urlBase, validateLeagues) =
             }
         }
 
-        // if(teams.length === 0 && !EXCLUDED_LEAGUE_SEASONS.includes(fullLink)){
-        //     console.log(`3.3.5. LEAGUE DETAILS TEAMS: Full link: ${fullLink} has no teams.`)
-        //     throw new Error(`3.3.5. LEAGUE DETAILS TEAMS: Full link: ${fullLink} has no teams.`);
-        // }
-
         return teams
     }
 
@@ -190,7 +185,7 @@ export const getDetailsLeagues = async(leaguesArray, urlBase, validateLeagues) =
             const $leaguePage = await scrape(urlBase + dataLeague.link);
     
             const seasonsScrap = $leaguePage('select[name="saison_id"] option');
-            const seasons = seasonsScrap.map((index, element) => $leaguePage(element).attr('value')).get();
+            const seasons = seasonsScrap.map((_, element) => $leaguePage(element).attr('value')).get();
     
             console.log(`3.3. LEAGUE DETAILS: ${dataLeague.link} league has ${seasons.length} seasons.`)
     
@@ -200,17 +195,23 @@ export const getDetailsLeagues = async(leaguesArray, urlBase, validateLeagues) =
     
                 if(!validation){
                     const teams = await getTeamsBySeason(true, seasonYearLink, $leaguePage, urlBase, dataLeague.type);
+
+                    if(validateTeamsArray(teams)){
+                        console.log(`3.4. LEAGUE DETAILS: ${dataLeague.link} league unique details will be added.`)
     
-                    console.log(`3.4. LEAGUE DETAILS: ${dataLeague.link} league unique details will be added.`)
-    
-                    seasonsByLeagueArray.push({
-                        'linkLeague': dataLeague.link,
-                        'link': seasonYearLink,
-                        'season': 'unique',
-                        'teams': teams
-                    })
-    
-                    writeDBFile(fileName,seasonsByLeagueArray)
+                        seasonsByLeagueArray.push({
+                            'linkLeague': dataLeague.link,
+                            'link': seasonYearLink,
+                            'season': 'unique',
+                            'teams': teams
+                        })
+        
+                        writeDBFile(fileName,seasonsByLeagueArray)
+                    }else{
+                        console.log(`3.4.2. LEAGUE DETAILS: Full link: ${dataLeague.link} has error in teams (${seasonYearLink}).`)
+                        throw new Error(`3.4.2. LEAGUE DETAILS: Full link: ${dataLeague.link} has error in teams (${seasonYearLink}).`);
+                    }    
+                    
                 }
             }
     
@@ -222,17 +223,22 @@ export const getDetailsLeagues = async(leaguesArray, urlBase, validateLeagues) =
     
                 if(!validation){
                     const teams = await getTeamsBySeason(false, seasonYearLink, null, urlBase, dataLeague.type);
+
+                    if(validateTeamsArray(teams)){
+                        console.log(`3.4. LEAGUE DETAILS: ${dataLeague.link} league ${parseInt(seasonYear).toString()} details will be added.`)
     
-                    console.log(`3.4. LEAGUE DETAILS: ${dataLeague.link} league ${parseInt(seasonYear).toString()} details will be added.`)
-    
-                    seasonsByLeagueArray.push({
-                        'linkLeague': dataLeague.link,
-                        'link': seasonYearLink,
-                        'season': parseInt(seasonYear).toString(),
-                        'teams': teams
-                    })
-    
-                    writeDBFile(fileName,seasonsByLeagueArray)
+                        seasonsByLeagueArray.push({
+                            'linkLeague': dataLeague.link,
+                            'link': seasonYearLink,
+                            'season': parseInt(seasonYear).toString(),
+                            'teams': teams
+                        })
+        
+                        writeDBFile(fileName,seasonsByLeagueArray)
+                    }else{
+                        console.log(`3.4.2. LEAGUE DETAILS: Full link: ${dataLeague.link} has error in teams (${seasonYearLink}).`)
+                        throw new Error(`3.4.2. LEAGUE DETAILS: Full link: ${dataLeague.link} has error in teams (${seasonYearLink}).`);
+                    }
                 }
             }
         }
@@ -286,34 +292,45 @@ export const getTeamDetails = async(urlBase, listOfTeams) => {
     }
 }
 
-export const cleanTeamsLinksInSeasonsByLeague = async() => {
+export const cleanTeamsLinksInSeasonsByLeague = async(ovwOriginalFile, step, exactlyStep) => {
+    const SUFIX_FILE = "_cleaned"
+    const fileName = 'seasonsByLeague'
+    let fileNameWrite = fileName
+    if(!ovwOriginalFile){
+        fileNameWrite = fileNameWrite+SUFIX_FILE
+    }
     console.log(`3.5. CLEAN SEASONS BY LEAGUE.`)
 
-    const fileName = 'seasonsByLeague'
     const seasonsByLeagueArray = await readDBFileOrCreate(fileName,'json',[])
 
-    const filteredSeasons = seasonsByLeagueArray.filter(league =>
-        !league.teams.some(team => team.link?.includes("/spieler/") || team.name === "")
-    );
+    let filteredSeasons = seasonsByLeagueArray
 
-    const deletedLeagues = seasonsByLeagueArray.length - filteredSeasons.length;
-    console.log(`3.5.1. CLEAN SEASONS BY LEAGUE. ${deletedLeagues} were deleted.`)
+    if((exactlyStep === true && step === STEP_1_CLEANINVALIDTEAMS) || (exactlyStep === false && step >= STEP_1_CLEANINVALIDTEAMS)){
+        filteredSeasons = seasonsByLeagueArray.filter(league =>
+            !league.teams.some(team => team.link?.includes("/spieler/") || team.name === "")
+        );
+    
+        const deletedLeagues = seasonsByLeagueArray.length - filteredSeasons.length;
+        console.log(`3.5.1. CLEAN SEASONS BY LEAGUE. ${deletedLeagues} were deleted.`)
+    }
 
-    const modifiedSeasonsByLeagueArray = filteredSeasons.map(item => {
-        const modifiedTeams = item.teams.map(team => {
-            const linkArray = team.link.split('/')
-            const link = linkArray.slice(0, linkArray < 5 ? linkArray.length : 5).join('/');
-            return { ...team, link };
+    if((exactlyStep === true && step === STEP_2_CLEANSEASONTEAMS) || (exactlyStep === false && step >= STEP_2_CLEANSEASONTEAMS)){
+        const initialTeams = getUniqueTeams(filteredSeasons)
+        filteredSeasons = filteredSeasons.map(item => {
+            const modifiedTeams = item.teams.map(team => {
+                const linkArray = team.link.split('/')
+                const link = linkArray.slice(0, linkArray < 5 ? linkArray.length : 5).join('/');
+                return { ...team, link };
+            });
+            return { ...item, teams: modifiedTeams };
         });
-        return { ...item, teams: modifiedTeams };
-    });
+    
+        const afterValidationTeams = getUniqueTeams(filteredSeasons)
+    
+        console.log(`3.5.2. CLEAN SEASONS BY LEAGUE. ${initialTeams.length} initial unique teams. ${afterValidationTeams.length} after validation unique teams.`)    
+    }
 
-    const initialTeams = getUniqueTeams(filteredSeasons)
-    const afterValidationTeams = getUniqueTeams(modifiedSeasonsByLeagueArray)
+    writeDBFile(fileNameWrite, filteredSeasons)
 
-    console.log(`3.5.2. CLEAN SEASONS BY LEAGUE. ${initialTeams.length} initial unique teams. ${afterValidationTeams.length} after validation unique teams.`)
-
-    writeDBFile(fileName+"_cleaned",modifiedSeasonsByLeagueArray)
-
-    return modifiedSeasonsByLeagueArray
+    return filteredSeasons
 }
