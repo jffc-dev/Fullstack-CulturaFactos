@@ -228,6 +228,8 @@ export const getDetailsLeagues = async(leaguesArray, urlBase) => {
             }
         }
     }
+
+    const teams = getUniqueTeams(seasonsByLeagueArray)
 }
 
 export const cleanSeasonsByLeague = async() => {
@@ -235,4 +237,15 @@ export const cleanSeasonsByLeague = async() => {
     const seasonsByLeagueArray = await readDBFileOrCreate(fileName,'json',[])
     const filter = seasonsByLeagueArray.filter(season => season.teams.length !== 0)
     writeDBFile(fileName,filter)
+}
+
+export const getUniqueTeams = async(leaguesSeasonsArray) => {
+    console.log(`4. UNIQUE TEAMS.`)
+    
+    const uniqueTeamLinks = leaguesSeasonsArray.reduce((set, item) => {
+        item.teams.forEach((team) => set.add(team.link));
+        return set;
+    }, new Set());
+
+    console.log(`4.1. UNIQUE TEAMS. ${uniqueTeamLinks.length} teams were found.`)
 }
