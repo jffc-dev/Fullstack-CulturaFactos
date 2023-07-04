@@ -88,9 +88,11 @@ export const scrapLeagues = async(urlLeagues, urlLeagueBase, urlBase) => {
 
     await getUniqueCupTypes(fileName);
 
-    await getDetailsLeagues(leaguesArray, urlBase);
+    const seasonsByLeagueArray = await getDetailsLeagues(leaguesArray, urlBase, false);
 
-    return leaguesArray;
+    const teams = getUniqueTeams(seasonsByLeagueArray)
+
+    return teams;
 }
 
 export const getUniqueCupTypes = async(leaguesFyle) => {
@@ -111,7 +113,7 @@ export const getUniqueCupTypes = async(leaguesFyle) => {
     writeDBFile(fileName,arrayTypes)
 }
 
-export const getDetailsLeagues = async(leaguesArray, urlBase) => {
+export const getDetailsLeagues = async(leaguesArray, urlBase, validateLeagues) => {
     console.log(`3. LEAGUE DETAILS.`)
 
     const SEASON_SUFIX = '?saison_id='
@@ -175,61 +177,64 @@ export const getDetailsLeagues = async(leaguesArray, urlBase) => {
         return teams
     }
 
-    for (let index = 0; index < leaguesArray.length; index++) {
-        const dataLeague = leaguesArray[index]
-        console.log(`3.2. LEAGUE DETAILS: ${dataLeague.link} league details will be validated.`)
-
-        const $leaguePage = await scrape(urlBase + dataLeague.link);
-
-        const seasonsScrap = $leaguePage('select[name="saison_id"] option');
-        const seasons = seasonsScrap.map((index, element) => $leaguePage(element).attr('value')).get();
-
-        console.log(`3.3. LEAGUE DETAILS: ${dataLeague.link} league has ${seasons.length} seasons.`)
-
-        if(seasons.length <= 0){
-            const seasonYearLink = dataLeague.link
-            const validation = seasonsByLeagueArray.find(season => season.link === seasonYearLink)
-
-            if(!validation){
-                const teams = await getTeamsBySeason(true, seasonYearLink, $leaguePage, urlBase, dataLeague.type);
-
-                console.log(`3.4. LEAGUE DETAILS: ${dataLeague.link} league unique details will be added.`)
-
-                seasonsByLeagueArray.push({
-                    'linkLeague': dataLeague.link,
-                    'link': seasonYearLink,
-                    'season': 'unique',
-                    'teams': teams
-                })
-
-                writeDBFile(fileName,seasonsByLeagueArray)
+    if(validateLeagues){
+        for (let index = 0; index < leaguesArray.length; index++) {
+            const dataLeague = leaguesArray[index]
+            console.log(`3.2. LEAGUE DETAILS: ${dataLeague.link} league details will be validated.`)
+    
+            const $leaguePage = await scrape(urlBase + dataLeague.link);
+    
+            const seasonsScrap = $leaguePage('select[name="saison_id"] option');
+            const seasons = seasonsScrap.map((index, element) => $leaguePage(element).attr('value')).get();
+    
+            console.log(`3.3. LEAGUE DETAILS: ${dataLeague.link} league has ${seasons.length} seasons.`)
+    
+            if(seasons.length <= 0){
+                const seasonYearLink = dataLeague.link
+                const validation = seasonsByLeagueArray.find(season => season.link === seasonYearLink)
+    
+                if(!validation){
+                    const teams = await getTeamsBySeason(true, seasonYearLink, $leaguePage, urlBase, dataLeague.type);
+    
+                    console.log(`3.4. LEAGUE DETAILS: ${dataLeague.link} league unique details will be added.`)
+    
+                    seasonsByLeagueArray.push({
+                        'linkLeague': dataLeague.link,
+                        'link': seasonYearLink,
+                        'season': 'unique',
+                        'teams': teams
+                    })
+    
+                    writeDBFile(fileName,seasonsByLeagueArray)
+                }
             }
-        }
-
-        for (let j = 0; j < seasons.length; j++) {
-            const seasonYear = seasons[j]
-
-            const seasonYearLink = dataLeague.link + SEASON_SUFIX + seasonYear
-            const validation = seasonsByLeagueArray.find(season => season.link === seasonYearLink)
-
-            if(!validation){
-                const teams = await getTeamsBySeason(false, seasonYearLink, null, urlBase, dataLeague.type);
-
-                console.log(`3.4. LEAGUE DETAILS: ${dataLeague.link} league ${parseInt(seasonYear).toString()} details will be added.`)
-
-                seasonsByLeagueArray.push({
-                    'linkLeague': dataLeague.link,
-                    'link': seasonYearLink,
-                    'season': parseInt(seasonYear).toString(),
-                    'teams': teams
-                })
-
-                writeDBFile(fileName,seasonsByLeagueArray)
+    
+            for (let j = 0; j < seasons.length; j++) {
+                const seasonYear = seasons[j]
+    
+                const seasonYearLink = dataLeague.link + SEASON_SUFIX + seasonYear
+                const validation = seasonsByLeagueArray.find(season => season.link === seasonYearLink)
+    
+                if(!validation){
+                    const teams = await getTeamsBySeason(false, seasonYearLink, null, urlBase, dataLeague.type);
+    
+                    console.log(`3.4. LEAGUE DETAILS: ${dataLeague.link} league ${parseInt(seasonYear).toString()} details will be added.`)
+    
+                    seasonsByLeagueArray.push({
+                        'linkLeague': dataLeague.link,
+                        'link': seasonYearLink,
+                        'season': parseInt(seasonYear).toString(),
+                        'teams': teams
+                    })
+    
+                    writeDBFile(fileName,seasonsByLeagueArray)
+                }
             }
         }
     }
 
-    const teams = getUniqueTeams(seasonsByLeagueArray)
+    return seasonsByLeagueArray
+
 }
 
 export const cleanSeasonsByLeague = async() => {
@@ -247,5 +252,10 @@ export const getUniqueTeams = async(leaguesSeasonsArray) => {
         return set;
     }, new Set());
 
-    console.log(`4.1. UNIQUE TEAMS. ${uniqueTeamLinks.length} teams were found.`)
+    const teamsArray = [...uniqueTeamLinks]
+
+    console.log(`4.1. UNIQUE TEAMS. ${teamsArray.length} teams were found.`)
+
+    return teamsArray
+
 }
