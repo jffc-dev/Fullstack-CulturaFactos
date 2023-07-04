@@ -45,10 +45,19 @@ export const scrapeTeamInfo = ($, url) => {
     const teamName = $("h1.data-header__headline-wrapper").text().trim()
     const successesLink = '/'+url.split('/')[1]+'/erfolge/'+url.split('/')[3]+'/'+url.split('/')[4]
     const foundationDateStr = $('span[itemprop="foundingDate"]').text().trim()
-    const foundationDate = foundationDateStr ? new Date(foundationDateStr.split("/")[2], foundationDateStr.split("/")[1] - 1, foundationDateStr.split("/")[0]) : null;
+    let foundationDate = null;
+    if(foundationDateStr){
+        foundationDate = new Date(foundationDateStr.split("/")[2], foundationDateStr.split("/")[1] - 1, foundationDateStr.split("/")[0])
+    }
+
     const stadiumElement = $('ul.data-header__items li.data-header__label')[4];
     const $stadiumElement = $(stadiumElement);
-    const stadiumLink = $stadiumElement.find("a").attr('href');
+
+    let stadiumLink = null;
+    console.log($stadiumElement.text().trim().split("\n")[0]);
+    if($stadiumElement.text().trim().split("\n")[0] === "Estadio:"){
+        stadiumLink = $stadiumElement.find("a").attr('href')
+    }
 
     return {
         'teamName': teamName,
