@@ -54,17 +54,18 @@ export const scrapeTeamInfo = ($, url) => {
     const $stadiumElement = $(stadiumElement);
 
     let stadiumLink = null;
-    console.log($stadiumElement.text().trim().split("\n")[0]);
     if($stadiumElement.text().trim().split("\n")[0] === "Estadio:"){
         stadiumLink = $stadiumElement.find("a").attr('href')
     }
+    const teamImage = $('div.data-header__profile-container img').attr('src');
 
     return {
         'teamName': teamName,
         'link': url,
         'successesLink': successesLink,
         'foundationDate': foundationDate,
-        'stadiumLink': stadiumLink
+        'stadiumLink': stadiumLink,
+        'imageLink': teamImage
     }
 }
 
