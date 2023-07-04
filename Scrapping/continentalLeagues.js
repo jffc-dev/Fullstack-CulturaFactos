@@ -334,3 +334,13 @@ export const cleanTeamsLinksInSeasonsByLeague = async(ovwOriginalFile, step, exa
 
     return filteredSeasons
 }
+
+const validateTeamsArray = (teamsArray) => {
+    console.log(`3.4.1. VALIDATE TEAMS ARRAY.`)
+
+    const filteredArray = teamsArray.filter(team => team.link?.includes("/spieler/") || team.name === "")
+    console.log(teamsArray);
+    console.log(filteredArray.length);
+
+    return filteredArray.length === 0
+}
