@@ -264,25 +264,22 @@ export const getUniqueTeams = (leaguesSeasonsArray) => {
 
 export const getTeamDetails = async(urlBase, listOfTeams) => {
     console.log(`5. DETAIL TEAMS.`)
-    const fileNames = {
-        teams: 'teams',
-        stadiums: 'stadiums'
-    }
+    const fileName = 'teams'
 
-    const teamsArray = await readDBFileOrCreate(fileNames.teams,'json',[])
-    const stadiumsArray = await readDBFileOrCreate(fileNames.stadiums,'json',[])
-    console.log(`5.1. DETAIL TEAMS. ${teamsArray.length} teams were found in the file. ${stadiumsArray.length} stadiums were found in the file.`)
+    const teamsArray = await readDBFileOrCreate(fileName,'json',[])
+    console.log(`5.1. DETAIL TEAMS. ${teamsArray.length} teams were found in the file.`)
 
     for (const urlTeam of listOfTeams) {
-        console.log(`5.2. DETAIL TEAMS. ${urlTeam} details will be added.`)
-        const $ = await scrape(urlBase+urlTeam)
-        const scrappedDataTeam = scrapeTeamInfo($, urlTeam)
-        const scrappedDataStadium = scrapeStadiumInfo($)
+        console.log(`5.2. DETAIL TEAMS. ${urlTeam} details will be validated.`)
+
+        const validationTeam = teamsArray.find(team => team.link === urlTeam)
         
-        teamsArray.push(scrappedDataTeam)
-        writeDBFile(fileNames.teams,teamsArray)
-        
-        stadiumsArray.push(scrappedDataStadium)
-        writeDBFile(fileNames.stadiums,stadiumsArray)
+        if(!validationTeam){
+            console.log(`5.3. DETAIL TEAMS. ${urlTeam} details will be added.`)
+            const $ = await scrape(urlBase+urlTeam)
+            const scrappedDataTeam = scrapeTeamInfo($, urlTeam)
+            teamsArray.push(scrappedDataTeam)
+            writeDBFile(fileName,teamsArray)
+        }
     }
 }
