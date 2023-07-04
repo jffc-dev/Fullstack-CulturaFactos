@@ -89,9 +89,11 @@ export const scrapLeagues = async(urlLeagues, urlLeagueBase, urlBase) => {
 
     await getUniqueCupTypes(fileName);
 
-    const seasonsByLeagueArray = await getDetailsLeagues(leaguesArray, urlBase, false);
+    await getDetailsLeagues(leaguesArray, urlBase, false);
 
-    const listOfTeams = getUniqueTeams(seasonsByLeagueArray)
+    const cleanedSeasonsByLeagueArray = await cleanTeamsLinksInSeasonsByLeague()
+
+    const listOfTeams = getUniqueTeams(cleanedSeasonsByLeagueArray)
 
     const teams = await getTeamDetails(urlBase, listOfTeams)
 
@@ -282,4 +284,36 @@ export const getTeamDetails = async(urlBase, listOfTeams) => {
             writeDBFile(fileName,teamsArray)
         }
     }
+}
+
+export const cleanTeamsLinksInSeasonsByLeague = async() => {
+    console.log(`3.5. CLEAN SEASONS BY LEAGUE.`)
+
+    const fileName = 'seasonsByLeague'
+    const seasonsByLeagueArray = await readDBFileOrCreate(fileName,'json',[])
+
+    const filteredSeasons = seasonsByLeagueArray.filter(league =>
+        !league.teams.some(team => team.link?.includes("/spieler/") || team.name === "")
+    );
+
+    const deletedLeagues = seasonsByLeagueArray.length - filteredSeasons.length;
+    console.log(`3.5.1. CLEAN SEASONS BY LEAGUE. ${deletedLeagues} were deleted.`)
+
+    const modifiedSeasonsByLeagueArray = filteredSeasons.map(item => {
+        const modifiedTeams = item.teams.map(team => {
+            const linkArray = team.link.split('/')
+            const link = linkArray.slice(0, linkArray < 5 ? linkArray.length : 5).join('/');
+            return { ...team, link };
+        });
+        return { ...item, teams: modifiedTeams };
+    });
+
+    const initialTeams = getUniqueTeams(filteredSeasons)
+    const afterValidationTeams = getUniqueTeams(modifiedSeasonsByLeagueArray)
+
+    console.log(`3.5.2. CLEAN SEASONS BY LEAGUE. ${initialTeams.length} initial unique teams. ${afterValidationTeams.length} after validation unique teams.`)
+
+    writeDBFile(fileName+"_cleaned",modifiedSeasonsByLeagueArray)
+
+    return modifiedSeasonsByLeagueArray
 }
