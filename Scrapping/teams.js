@@ -40,7 +40,7 @@ const addUniqueToArray = (array, element) => {
     }
 }
 
-const scrapeTeamInfo = ($, url) => {
+export const scrapeTeamInfo = ($, url) => {
     
     const teamName = $("h1.data-header__headline-wrapper").text().trim()
     const successesLink = '/'+url.split('/')[1]+'/erfolge/'+url.split('/')[3]+'/'+url.split('/')[4]
@@ -59,7 +59,7 @@ const scrapeTeamInfo = ($, url) => {
     }
 }
 
-const scrapeStadiumInfo = ($) => {
+export const scrapeStadiumInfo = ($) => {
     const stadiumElement = $('ul.data-header__items li.data-header__label')[4];
     const $stadiumElement = $(stadiumElement);
     const stadiumLink = $stadiumElement.find("a").attr('href');

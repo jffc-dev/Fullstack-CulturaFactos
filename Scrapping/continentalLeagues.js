@@ -1,3 +1,4 @@
+import { scrapeStadiumInfo, scrapeTeamInfo } from "./teams.js";
 import { readDBFileOrCreate, scrape, writeDBFile } from "./utils.js";
 import { EXCLUDED_LEAGUE_SEASONS, NATIONAL_LEAGUE } from "./utils/consts.js";
 
@@ -90,7 +91,9 @@ export const scrapLeagues = async(urlLeagues, urlLeagueBase, urlBase) => {
 
     const seasonsByLeagueArray = await getDetailsLeagues(leaguesArray, urlBase, false);
 
-    const teams = getUniqueTeams(seasonsByLeagueArray)
+    const listOfTeams = getUniqueTeams(seasonsByLeagueArray)
+
+    const teams = await getTeamDetails(urlBase, listOfTeams)
 
     return teams;
 }
@@ -244,7 +247,7 @@ export const cleanSeasonsByLeague = async() => {
     writeDBFile(fileName,filter)
 }
 
-export const getUniqueTeams = async(leaguesSeasonsArray) => {
+export const getUniqueTeams = (leaguesSeasonsArray) => {
     console.log(`4. UNIQUE TEAMS.`)
     
     const uniqueTeamLinks = leaguesSeasonsArray.reduce((set, item) => {
@@ -257,5 +260,29 @@ export const getUniqueTeams = async(leaguesSeasonsArray) => {
     console.log(`4.1. UNIQUE TEAMS. ${teamsArray.length} teams were found.`)
 
     return teamsArray
+}
 
+export const getTeamDetails = async(urlBase, listOfTeams) => {
+    console.log(`5. DETAIL TEAMS.`)
+    const fileNames = {
+        teams: 'teams',
+        stadiums: 'stadiums'
+    }
+
+    const teamsArray = await readDBFileOrCreate(fileNames.teams,'json',[])
+    const stadiumsArray = await readDBFileOrCreate(fileNames.stadiums,'json',[])
+    console.log(`5.1. DETAIL TEAMS. ${teamsArray.length} teams were found in the file. ${stadiumsArray.length} stadiums were found in the file.`)
+
+    for (const urlTeam of listOfTeams) {
+        console.log(`5.2. DETAIL TEAMS. ${urlTeam} details will be added.`)
+        const $ = await scrape(urlBase+urlTeam)
+        const scrappedDataTeam = scrapeTeamInfo($, urlTeam)
+        const scrappedDataStadium = scrapeStadiumInfo($)
+        
+        teamsArray.push(scrappedDataTeam)
+        writeDBFile(fileNames.teams,teamsArray)
+        
+        stadiumsArray.push(scrappedDataStadium)
+        writeDBFile(fileNames.stadiums,stadiumsArray)
+    }
 }
