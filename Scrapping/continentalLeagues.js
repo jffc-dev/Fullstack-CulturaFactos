@@ -128,7 +128,7 @@ export const getDetailsLeagues = async(leaguesArray, urlBase, validateLeagues) =
     console.log(`3.1. LEAGUE DETAILS: ${seasonsByLeagueArray.length} league details were found in the file.`)
 
     const getTeamsBySeason = async(unique, fullLink, scrapedPage, urlBase, type) => {
-        console.log(`3.3.1. LEAGUE DETAILS TEAMS.`)
+        console.log(`3.3.1. LEAGUE DETAILS TEAMS FIRST.`)
         const replaceableString = 'startseite'
         const newString = 'teilnehmer'
 
@@ -137,14 +137,14 @@ export const getDetailsLeagues = async(leaguesArray, urlBase, validateLeagues) =
         //get teams by season link
         // const teamsPageLink = $scrape('ul#submenu li#resumen a').attr('href')
 
-        console.log(`3.3.2. LEAGUE DETAILS TEAMS: Full link: ${urlBase+teamsPageLink}.`)
+        console.log(`3.3.2. LEAGUE DETAILS TEAMS FIRST: Full link: ${urlBase+teamsPageLink}.`)
 
         const $teamsPage = await scrape(urlBase+teamsPageLink);
 
         const teams = []
         const $rows = $teamsPage('table.items > tbody > tr td.hauptlink')
 
-        console.log(`3.3.3. LEAGUE DETAILS TEAMS: Full link: ${fullLink}, ${urlBase+teamsPageLink} detail teams league has ${$rows.length} teams.`)
+        console.log(`3.3.3. LEAGUE DETAILS TEAMS FIRST: Full link: ${fullLink}, ${urlBase+teamsPageLink} detail teams league has ${$rows.length} teams.`)
 
         for (let i = 0; i < $rows.length; i++) {
             const $el = $teamsPage($rows[i])
@@ -161,7 +161,7 @@ export const getDetailsLeagues = async(leaguesArray, urlBase, validateLeagues) =
             const $scrape = await scrape(urlBase+fullLink);
             const table = $scrape('table.items')[0]
             const $rows = $scrape(table).find('tbody > tr td.hauptlink')
-            console.log(`3.3.4. LEAGUE DETAILS TEAMS: National Full link: ${fullLink}, ${urlBase+teamsPageLink} detail teams league has ${$rows.length} teams.`)
+            console.log(`3.3.4. LEAGUE DETAILS TEAMS FIRST: National Full link: ${fullLink}, ${urlBase+teamsPageLink} detail teams league has ${$rows.length} teams.`)
 
             for (let i = 0; i < $rows.length; i++) {
                 const $el = $teamsPage($rows[i])
@@ -172,6 +172,43 @@ export const getDetailsLeagues = async(leaguesArray, urlBase, validateLeagues) =
                     'name': teamName
                 })
             }
+        }
+
+        return teams
+    }
+
+    const getTeamsBySeasonSecondAttempt = async(fullLink, urlBase) => {
+        console.log(`3.3.5. LEAGUE DETAILS TEAMS SECOND.`)
+        let replaceableString = 'wettbewerb'
+        let newString = 'pokalwettbewerb'
+
+        let teamsPageLink = fullLink.replace(replaceableString, newString)
+
+        replaceableString = 'startseite'
+        newString = 'teilnehmer'
+
+        teamsPageLink = teamsPageLink.replace(replaceableString, newString)
+
+        //get teams by season link
+        // const teamsPageLink = $scrape('ul#submenu li#resumen a').attr('href')
+
+        console.log(`3.3.5.1. LEAGUE DETAILS TEAMS SECOND: Full link: ${urlBase+teamsPageLink}.`)
+
+        const $teamsPage = await scrape(urlBase+teamsPageLink);
+
+        const teams = []
+        const $rows = $teamsPage('table.items > tbody > tr td.hauptlink')
+
+        console.log(`3.3.5.2. LEAGUE DETAILS TEAMS SECOND: Full link: ${fullLink}, ${urlBase+teamsPageLink} detail teams league has ${$rows.length} teams.`)
+
+        for (let i = 0; i < $rows.length; i++) {
+            const $el = $teamsPage($rows[i])
+            const teamLink = $el.find("a").attr('href')
+            const teamName = $el.find("a").text().trim()
+            teams.push({
+                'link': teamLink,
+                'name': teamName
+            })
         }
 
         return teams
@@ -194,7 +231,7 @@ export const getDetailsLeagues = async(leaguesArray, urlBase, validateLeagues) =
                 const validation = seasonsByLeagueArray.find(season => season.link === seasonYearLink)
     
                 if(!validation){
-                    const teams = await getTeamsBySeason(true, seasonYearLink, $leaguePage, urlBase, dataLeague.type);
+                    let teams = await getTeamsBySeason(true, seasonYearLink, $leaguePage, urlBase, dataLeague.type);
 
                     if(validateTeamsArray(teams)){
                         console.log(`3.4. LEAGUE DETAILS: ${dataLeague.link} league unique details will be added.`)
@@ -209,7 +246,22 @@ export const getDetailsLeagues = async(leaguesArray, urlBase, validateLeagues) =
                         writeDBFile(fileName,seasonsByLeagueArray)
                     }else{
                         console.log(`3.4.2. LEAGUE DETAILS: Full link: ${dataLeague.link} has error in teams (${seasonYearLink}).`)
-                        throw new Error(`3.4.2. LEAGUE DETAILS: Full link: ${dataLeague.link} has error in teams (${seasonYearLink}).`);
+                        teams = await getTeamsBySeasonSecondAttempt(seasonYearLink, urlBase)
+
+                        if(validateTeamsArray(teams)){
+                            console.log(`3.4.3. LEAGUE DETAILS: ${dataLeague.link} league unique details will be added in second attempt.`)
+        
+                            seasonsByLeagueArray.push({
+                                'linkLeague': dataLeague.link,
+                                'link': seasonYearLink,
+                                'season': 'unique',
+                                'teams': teams
+                            })
+            
+                            writeDBFile(fileName,seasonsByLeagueArray)
+                        }
+
+                        throw new Error(`3.4.4. LEAGUE DETAILS: Full link: ${dataLeague.link} has error in teams (${seasonYearLink}).`);
                     }    
                     
                 }
@@ -222,7 +274,7 @@ export const getDetailsLeagues = async(leaguesArray, urlBase, validateLeagues) =
                 const validation = seasonsByLeagueArray.find(season => season.link === seasonYearLink)
     
                 if(!validation){
-                    const teams = await getTeamsBySeason(false, seasonYearLink, null, urlBase, dataLeague.type);
+                    let teams = await getTeamsBySeason(false, seasonYearLink, null, urlBase, dataLeague.type);
 
                     if(validateTeamsArray(teams)){
                         console.log(`3.4. LEAGUE DETAILS: ${dataLeague.link} league ${parseInt(seasonYear).toString()} details will be added.`)
@@ -237,7 +289,22 @@ export const getDetailsLeagues = async(leaguesArray, urlBase, validateLeagues) =
                         writeDBFile(fileName,seasonsByLeagueArray)
                     }else{
                         console.log(`3.4.2. LEAGUE DETAILS: Full link: ${dataLeague.link} has error in teams (${seasonYearLink}).`)
-                        throw new Error(`3.4.2. LEAGUE DETAILS: Full link: ${dataLeague.link} has error in teams (${seasonYearLink}).`);
+                        teams = await getTeamsBySeasonSecondAttempt(seasonYearLink, urlBase)
+
+                        if(validateTeamsArray(teams)){
+                            console.log(`3.4.3. LEAGUE DETAILS: ${dataLeague.link} league details will be added in second attempt.`)
+        
+                            seasonsByLeagueArray.push({
+                                'linkLeague': dataLeague.link,
+                                'link': seasonYearLink,
+                                'season': 'unique',
+                                'teams': teams
+                            })
+            
+                            writeDBFile(fileName,seasonsByLeagueArray)
+                        }else{
+                            throw new Error(`3.4.4. LEAGUE DETAILS: Full link: ${dataLeague.link} has error in teams (${seasonYearLink}).`);
+                        }
                     }
                 }
             }
