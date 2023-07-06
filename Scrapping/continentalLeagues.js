@@ -93,9 +93,9 @@ export const scrapLeagues = async(urlLeagues, urlLeagueBase, urlBase) => {
 
     // const cleanedSeasonsByLeagueArray = await cleanTeamsLinksInSeasonsByLeague(false,STEP_2_CLEANSEASONTEAMS,false)
 
-    const listOfTeams = getUniqueTeams(cleanedSeasonsByLeagueArray)
+    // const listOfTeams = getUniqueTeams(cleanedSeasonsByLeagueArray)
 
-    const teams = await getTeamDetails(urlBase, listOfTeams)
+    // const teams = await getTeamDetails(urlBase, listOfTeams)
 
     return teams;
 }
@@ -277,7 +277,7 @@ export const getDetailsLeagues = async(leaguesArray, urlBase, validateLeagues) =
                     let teams = await getTeamsBySeason(false, seasonYearLink, null, urlBase, dataLeague.type);
 
                     if(validateTeamsArray(teams)){
-                        console.log(`3.4. LEAGUE DETAILS: ${dataLeague.link} league ${parseInt(seasonYear).toString()} details will be added.`)
+                        console.log(`3.4. LEAGUE DETAILS: ${dataLeague.link} league ${parseInt(seasonYear).toString()} details will be added. (${j+1}/${seasons.length})`)
     
                         seasonsByLeagueArray.push({
                             'linkLeague': dataLeague.link,
