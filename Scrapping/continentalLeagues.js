@@ -91,7 +91,7 @@ export const scrapLeagues = async(urlLeagues, urlLeagueBase, urlBase) => {
 
     await getDetailsLeagues(leaguesArray, urlBase, true);
 
-    const cleanedSeasonsByLeagueArray = await cleanTeamsLinksInSeasonsByLeague(false,STEP_2_CLEANSEASONTEAMS,false)
+    // const cleanedSeasonsByLeagueArray = await cleanTeamsLinksInSeasonsByLeague(false,STEP_2_CLEANSEASONTEAMS,false)
 
     const listOfTeams = getUniqueTeams(cleanedSeasonsByLeagueArray)
 
@@ -217,7 +217,7 @@ export const getDetailsLeagues = async(leaguesArray, urlBase, validateLeagues) =
     if(validateLeagues){
         for (let index = 0; index < leaguesArray.length; index++) {
             const dataLeague = leaguesArray[index]
-            console.log(`3.2. LEAGUE DETAILS: ${dataLeague.link} league details will be validated.`)
+            console.log(`3.2. LEAGUE DETAILS: ${dataLeague.link} league details will be validated. (${index+1}/${leaguesArray.length})`)
     
             const $leaguePage = await scrape(urlBase + dataLeague.link);
     
@@ -406,8 +406,6 @@ const validateTeamsArray = (teamsArray) => {
     console.log(`3.4.1. VALIDATE TEAMS ARRAY.`)
 
     const filteredArray = teamsArray.filter(team => team.link?.includes("/spieler/") || team.name === "")
-    console.log(teamsArray);
-    console.log(filteredArray.length);
 
     return filteredArray.length === 0
 }
