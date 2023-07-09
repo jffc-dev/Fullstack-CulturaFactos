@@ -89,13 +89,15 @@ export const scrapLeagues = async(urlLeagues, urlLeagueBase, urlBase) => {
 
     await getUniqueCupTypes(fileName);
 
-    await getDetailsLeagues(leaguesArray, urlBase, true);
+    await getDetailsLeagues(leaguesArray, urlBase, false);
 
-    // const cleanedSeasonsByLeagueArray = await cleanTeamsLinksInSeasonsByLeague(false,STEP_2_CLEANSEASONTEAMS,false)
+    const cleanedSeasonsByLeagueArray = await cleanTeamsLinksInSeasonsByLeague(false,STEP_2_CLEANSEASONTEAMS,false)
 
-    // const listOfTeams = getUniqueTeams(cleanedSeasonsByLeagueArray)
+    const listOfTeams = getUniqueTeams(cleanedSeasonsByLeagueArray)
 
-    // const teams = await getTeamDetails(urlBase, listOfTeams)
+    const detailTeams = await getTeamDetails(urlBase, listOfTeams)
+
+    await getStadiumDetails(urlBase, detailTeams)
 
     return teams;
 }
@@ -344,8 +346,9 @@ export const getTeamDetails = async(urlBase, listOfTeams) => {
     const teamsArray = await readDBFileOrCreate(fileName,'json',[])
     console.log(`5.1. DETAIL TEAMS. ${teamsArray.length} teams were found in the file.`)
 
+    let index = 0
     for (const urlTeam of listOfTeams) {
-        console.log(`5.2. DETAIL TEAMS. ${urlTeam} details will be validated.`)
+        console.log(`5.2. DETAIL TEAMS. ${urlTeam} details will be validated. ${index+1}/${listOfTeams.length}`)
 
         const validationTeam = teamsArray.find(team => team.link === urlTeam)
         
@@ -356,6 +359,32 @@ export const getTeamDetails = async(urlBase, listOfTeams) => {
             teamsArray.push(scrappedDataTeam)
             writeDBFile(fileName,teamsArray)
         }
+        index++;
+    }
+    return teamsArray
+}
+
+export const getStadiumDetails = async(urlBase, detailTeams) => {
+    console.log(`6. STADIUM DETAILS.`)
+    const fileName = 'stadiums'
+
+    const stadiumsArray = await readDBFileOrCreate(fileName,'json',[])
+    console.log(`6.1. STADIUM DETAILS. ${stadiumsArray.length} stadiums were found in the file.`)
+
+    let index = 0
+    for (const team of detailTeams) {
+        console.log(`6.2. STADIUM DETAILS. ${team.stadiumLink} details will be validated. ${index+1}/${detailTeams.length}`)
+
+        const validationStadium = stadiumsArray.find(stadium => stadium.link === team.stadiumLink)
+        
+        if(!validationStadium && team.stadiumLink){
+            console.log(`6.3. STADIUM DETAILS. ${team.stadiumLink} details will be added.`)
+            const $ = await scrape(urlBase+team.stadiumLink)
+            const scrappedDataTeam = scrapeStadiumInfo($, team)
+            stadiumsArray.push(scrappedDataTeam)
+            writeDBFile(fileName,stadiumsArray)
+        }
+        index++;
     }
 }
 
