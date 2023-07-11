@@ -99,7 +99,7 @@ export const scrapLeagues = async(urlLeagues, urlLeagueBase, urlBase) => {
 
     await getStadiumDetails(urlBase, detailTeams)
 
-    return teams;
+    return detailTeams;
 }
 
 export const getUniqueCupTypes = async(leaguesFyle) => {
