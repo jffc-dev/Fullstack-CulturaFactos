@@ -1,5 +1,5 @@
 import { createHash } from "crypto"
-import { createUser } from "../mongo/user.js";
+import { createUser, getByUsername } from "../mongo/user.js";
 import { ONDUser } from "../models/ONDUser.js";
 
 const hashString = (string) => {
@@ -17,6 +17,13 @@ export const createDefaultUser = async () => {
         ModificationUser: null, 
         ModificationDate: null 
     });
-    const rpta = await createUser(tipo)
+    const rpta = await createUser(tipo.toModel())
     console.log(rpta);
+}
+
+export const getUserByUsername = async (username) => {
+    const rpta = await getByUsername(username)
+    const userOnd = new ONDUser({})
+    userOnd.modelToOND(rpta)
+    return userOnd
 }
