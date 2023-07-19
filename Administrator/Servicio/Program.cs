@@ -1,11 +1,17 @@
+using Servicio.Models;
+using Servicio.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.Configure<CulturaFactosDataBaseSettings>(
+    builder.Configuration.GetSection("CulturaFactosDatabase"));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<TypesService>();
 
 var app = builder.Build();
 

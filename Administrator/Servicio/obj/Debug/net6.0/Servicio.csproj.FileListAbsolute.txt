@@ -30,3 +30,16 @@ G:\Fullstack\Fullstack-CulturaFactos\Administrator\Servicio\obj\Debug\net6.0\ref
 G:\Fullstack\Fullstack-CulturaFactos\Administrator\Servicio\obj\Debug\net6.0\Servicio.pdb
 G:\Fullstack\Fullstack-CulturaFactos\Administrator\Servicio\obj\Debug\net6.0\Servicio.genruntimeconfig.cache
 G:\Fullstack\Fullstack-CulturaFactos\Administrator\Servicio\obj\Debug\net6.0\ref\Servicio.dll
+G:\Fullstack\Fullstack-CulturaFactos\Administrator\Servicio\bin\Debug\net6.0\AWSSDK.Core.dll
+G:\Fullstack\Fullstack-CulturaFactos\Administrator\Servicio\bin\Debug\net6.0\AWSSDK.SecurityToken.dll
+G:\Fullstack\Fullstack-CulturaFactos\Administrator\Servicio\bin\Debug\net6.0\DnsClient.dll
+G:\Fullstack\Fullstack-CulturaFactos\Administrator\Servicio\bin\Debug\net6.0\MongoDB.Bson.dll
+G:\Fullstack\Fullstack-CulturaFactos\Administrator\Servicio\bin\Debug\net6.0\MongoDB.Driver.dll
+G:\Fullstack\Fullstack-CulturaFactos\Administrator\Servicio\bin\Debug\net6.0\MongoDB.Driver.Core.dll
+G:\Fullstack\Fullstack-CulturaFactos\Administrator\Servicio\bin\Debug\net6.0\MongoDB.Libmongocrypt.dll
+G:\Fullstack\Fullstack-CulturaFactos\Administrator\Servicio\bin\Debug\net6.0\SharpCompress.dll
+G:\Fullstack\Fullstack-CulturaFactos\Administrator\Servicio\bin\Debug\net6.0\Snappier.dll
+G:\Fullstack\Fullstack-CulturaFactos\Administrator\Servicio\bin\Debug\net6.0\ZstdSharp.dll
+G:\Fullstack\Fullstack-CulturaFactos\Administrator\Servicio\bin\Debug\net6.0\runtimes\linux\native\libmongocrypt.so
+G:\Fullstack\Fullstack-CulturaFactos\Administrator\Servicio\bin\Debug\net6.0\runtimes\osx\native\libmongocrypt.dylib
+G:\Fullstack\Fullstack-CulturaFactos\Administrator\Servicio\bin\Debug\net6.0\runtimes\win\native\mongocrypt.dll
