@@ -1,11 +1,19 @@
-﻿namespace Servicio.Models.General
+﻿using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson;
+
+namespace Servicio.Models.General
 {
     public class ONDType
     {
         #region Miembros
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string? Id { get; set; }
         public string TableCode { get; set; }
-        public string TypeCode { get; set; }
+        public int TypeCode { get; set; }
         public string Description1 { get; set; }
+        public string Description2 { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
         public string CreationUser { get; set; }
         public DateTime? CreationDate { get; set; }
         public string ModificationUser { get; set; }
