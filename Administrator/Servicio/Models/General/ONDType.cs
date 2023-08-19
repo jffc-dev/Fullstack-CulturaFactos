@@ -10,7 +10,7 @@ namespace Servicio.Models.General
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
         public string TableCode { get; set; }
-        public int TypeCode { get; set; }
+        public string TypeCode { get; set; }
         public string Description1 { get; set; }
         public string Description2 { get; set; }
         [BsonRepresentation(BsonType.ObjectId)]
