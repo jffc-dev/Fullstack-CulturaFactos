@@ -1,0 +1,37 @@
+<form [formGroup]="formGroup">
+    <div class="row">
+        <div class="field col-md-6">
+            <label for="name" class="form-label">Type table</label>
+            <input type="text" class="form-control" pInputText id="name" formControlName="text" required autofocus />
+            <small class="p-error invalid-feedback" *ngIf="submitted && !type.tableCode">Name is required.</small>
+        </div>
+        <div class="field col-md-6">
+            <label for="name" class="form-label">Type code</label>
+            <input type="text" class="form-control" pInputText id="name" formControlName="text" required autofocus />
+            <small class="p-error invalid-feedback" *ngIf="submitted && !type.tableCode">Name is required.</small>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="field col-md-12">
+            <label for="name" class="form-label">Type table</label>
+            <input type="text" class="form-control" pInputText id="name" formControlName="text" required autofocus />
+            <small class="p-error invalid-feedback" *ngIf="submitted && !type.tableCode">Name is required.</small>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="field col-md-12">
+            <label for="name" class="form-label">Type table</label>
+            <input type="text" class="form-control" pInputText id="name" formControlName="text" required autofocus />
+            <small class="p-error invalid-feedback" *ngIf="submitted && !type.tableCode">Name is required.</small>
+        </div>
+    </div>
+
+    <div class="row">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()">asd</button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveProduct()">asdss</button>
+        <p-button label="Submit"></p-button>
+
+    </div>
+</form>
