@@ -1,37 +1,34 @@
 <form [formGroup]="formGroup">
     <div class="row">
         <div class="field col-md-6">
-            <label for="name" class="form-label">Type table</label>
-            <input type="text" class="form-control" pInputText id="name" formControlName="text" required autofocus />
-            <small class="p-error invalid-feedback" *ngIf="submitted && !type.tableCode">Name is required.</small>
+            <label for="tableCode" class="form-label">Table Code</label>
+            <p-dropdown [options]="typesSelect" optionLabel="tableCode" styleClass="form-control dropdownControl" placeholder="Select a TableCode"></p-dropdown>
         </div>
         <div class="field col-md-6">
-            <label for="name" class="form-label">Type code</label>
-            <input type="text" class="form-control" pInputText id="name" formControlName="text" required autofocus />
-            <small class="p-error invalid-feedback" *ngIf="submitted && !type.tableCode">Name is required.</small>
+            <label for="typeCode" class="form-label">Type code</label>
+            <input type="text" class="form-control" pInputText id="typeCode" formControlName="typeCode" required autofocus />
+            <small class="p-error invalid-feedback" *ngIf="submitted && !type.tableCode">TypeCode is required.</small>
         </div>
     </div>
 
-    <div class="row">
+    <div class="row mt-2">
         <div class="field col-md-12">
-            <label for="name" class="form-label">Type table</label>
-            <input type="text" class="form-control" pInputText id="name" formControlName="text" required autofocus />
-            <small class="p-error invalid-feedback" *ngIf="submitted && !type.tableCode">Name is required.</small>
+            <label for="description1" class="form-label">Description 1</label>
+            <input type="text" class="form-control" pInputText id="description1" formControlName="description1" required autofocus />
+            <small class="p-error invalid-feedback" *ngIf="submitted && !type.tableCode">Description1 is required.</small>
         </div>
     </div>
 
-    <div class="row">
+    <div class="row mt-2">
         <div class="field col-md-12">
-            <label for="name" class="form-label">Type table</label>
-            <input type="text" class="form-control" pInputText id="name" formControlName="text" required autofocus />
-            <small class="p-error invalid-feedback" *ngIf="submitted && !type.tableCode">Name is required.</small>
+            <label for="description2" class="form-label">Description 2</label>
+            <input type="text" class="form-control" pInputText id="description2" formControlName="description2" required autofocus />
+            <small class="p-error invalid-feedback" *ngIf="submitted && !type.tableCode">Description2 is required.</small>
         </div>
     </div>
 
-    <div class="row">
-        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()">asd</button>
-        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveProduct()">asdss</button>
-        <p-button label="Submit"></p-button>
-
+    <div class="d-flex mt-2 justify-content-end">
+        <p-button label="Guardar" icon="pi pi-check" class="me-1"></p-button>
+        <p-button label="Cancelar" styleClass="p-button-raised p-button-text p-button-danger"></p-button>
     </div>
 </form>
