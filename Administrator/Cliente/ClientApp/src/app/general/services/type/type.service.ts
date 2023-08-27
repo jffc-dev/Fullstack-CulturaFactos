@@ -11,8 +11,18 @@ export class TypeService {
 
   constructor(private http: HttpClient) { }
 
-  public read(): Observable<any> {
-    return this.http.get<DTOType>(this.urlApi + "read")
+  public read(): Observable<DTOType[]> {
+    return this.http.get<DTOType[]>(this.urlApi + "read")
+    .pipe(
+      map(response => { return response }),
+      catchError(error => { return throwError('Something went wrong. Please try again later.'); })
+    );
+  }
+
+  public create(itemType: DTOType): Observable<any> {
+    var objetoJSON = { DTOType: itemType };
+
+    return this.http.post<number>(this.urlApi + "create", objetoJSON)
     .pipe(
       map(response => { return response }),
       catchError(error => { return throwError('Something went wrong. Please try again later.'); })
