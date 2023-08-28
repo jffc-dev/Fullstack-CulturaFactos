@@ -34,6 +34,18 @@ export class TypeService {
     );
   }
 
+  public delete(itemType: DTOType): Observable<any> {
+
+    return this.http.delete<number>(this.urlApi + "delete/" + itemType.id, {})
+      .pipe(
+        map(response => { return response }),
+        catchError(error => {
+          console.log(error)
+          return throwError('Something went wrong. Please try again later.' + error.toString());
+        })
+    );
+
+  }
 
   public update(itemType: DTOType): Observable<any> {
     var objetoJSON = { DTOType: itemType };
