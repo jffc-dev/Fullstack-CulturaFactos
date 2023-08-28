@@ -13,19 +13,18 @@
         </div>
     </p-toolbar>
 
-    <p-table
-        #dt
-        [value]="types"
-        [rows]="10"
-        [paginator]="true"
-        [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
-        [tableStyle]="{ 'min-width': '75rem' }"
-        [(selection)]="selectedTypes"
-        [rowHover]="true"
-        dataKey="id"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-        [showCurrentPageReport]="true"
-    >
+    <p-table #dt
+             [value]="types"
+             [rows]="10"
+             [paginator]="true"
+             [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
+             [tableStyle]="{ 'min-width': '75rem' }"
+             [(selection)]="selectedTypes"
+             [rowHover]="true"
+             dataKey="id"
+             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+             [showCurrentPageReport]="true"
+             styleClass="p-datatable-sm">
         <ng-template pTemplate="caption">
             <div class="flex align-items-center justify-content-between">
                 <h5 class="m-0">Manage types</h5>
@@ -43,6 +42,7 @@
                 <th pSortableColumn="name" style="min-width:15rem">Name<p-sortIcon field="name"></p-sortIcon></th>
                 <th pSortableColumn="code" style="min-width:15rem">Code<p-sortIcon field="code"></p-sortIcon></th>
                 <th pSortableColumn="description" style="min-width:15rem">Description<p-sortIcon field="description"></p-sortIcon></th>
+                <th></th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-type>
@@ -58,6 +58,10 @@
                 </td>
                 <td>
                     {{ type.description1 }}
+                </td>
+                <td>
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success me-2 custom-small-button" styleClass="p-button-sm" (click)="editType(type)"></button>
+                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning custom-small-button" styleClass="p-button-sm" (click)="deleteType(type)"></button>
                 </td>
             </tr>
         </ng-template>
