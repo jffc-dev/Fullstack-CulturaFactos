@@ -14,7 +14,7 @@ import { TypeService } from '../../../../services/type/type.service';
 export class FormTypeModalComponent implements OnInit {
   formGroup!: FormGroup;
   type!: DTOType;
-  typesSelect!: DTOType[];
+  generalTypes!: DTOType[];
   typeOperation: string = "";
   checkboxValue: string = "GENERAL";
 
@@ -60,6 +60,7 @@ export class FormTypeModalComponent implements OnInit {
   getInitialData() {
     this.typeOperation = this.config.data.typeOperation;
     this.type = this.config.data.selectedType;
+    this.generalTypes = this.config.data.generalTypes;
     console.log(this.config.data.selectedType)
   }
 
@@ -104,7 +105,11 @@ export class FormTypeModalComponent implements OnInit {
 
   createType() {
     const typeToSave: DTOType = {};
-    typeToSave.tableCode = this.formGroup.get('tableCode')!.value;
+    if (this.formGroup.get('tableCode')!.value === null) {
+      typeToSave.tableCode = TYPE_GENERAL_TYPES;
+    } else {
+      typeToSave.tableCode = this.formGroup.get('tableCode')!.value;
+    }
     typeToSave.typeCode = this.formGroup.get('typeCode')!.value;
     typeToSave.description1 = this.formGroup.get('description1')!.value;
     typeToSave.description2 = this.formGroup.get('description2')!.value;

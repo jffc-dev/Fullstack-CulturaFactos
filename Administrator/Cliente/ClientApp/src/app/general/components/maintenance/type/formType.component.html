@@ -4,7 +4,7 @@
     <p-toolbar styleClass="mb-4 gap-2 w-100">
         <div class="d-flex align-items-center justify-content-between w-100">
             <div>
-                <p-dropdown [options]="typesSelect" optionLabel="name" placeholder="Select a Type"></p-dropdown>
+                <p-dropdown [options]="generalTypes" optionLabel="typeCode" placeholder="Select a Type"></p-dropdown>
             </div>
             <div>
                 <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
