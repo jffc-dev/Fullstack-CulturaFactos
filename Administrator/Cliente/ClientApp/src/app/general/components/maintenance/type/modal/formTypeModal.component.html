@@ -2,20 +2,25 @@
     <div class="row">
         <div class="field col-md-6">
             <label for="tableCode" class="form-label">Table Code</label>
-            <p-dropdown [options]="typesSelect" optionLabel="tableCode" styleClass="form-control dropdownControl" placeholder="Select a TableCode"></p-dropdown>
+            <p-dropdown [options]="generalTypes" formControlName="tableCode" optionLabel="tableCode" styleClass="form-control dropdownControl" placeholder="Select a TableCode"></p-dropdown>
         </div>
         <div class="field col-md-6">
-            <label for="typeCode" class="form-label">Type code</label>
+            <div class="d-flex justify-content-between">
+                <label for="typeCode" class="form-label">Type code</label>
+                <div class="field d-flex align-items-center">
+                    <p-checkbox formControlName="general" value="{{checkboxValue}}" inputId="tableGeneral" class="me-1"></p-checkbox>
+                    <label for="tableGeneral" class="form-label m-0">General</label>
+                </div>
+            </div>
             <input type="text" class="form-control" pInputText id="typeCode" formControlName="typeCode" required autofocus />
-            <small class="p-error invalid-feedback" *ngIf="submitted && !type.tableCode">TypeCode is required.</small>
         </div>
+
     </div>
 
     <div class="row mt-2">
         <div class="field col-md-12">
             <label for="description1" class="form-label">Description 1</label>
             <input type="text" class="form-control" pInputText id="description1" formControlName="description1" required autofocus />
-            <small class="p-error invalid-feedback" *ngIf="submitted && !type.tableCode">Description1 is required.</small>
         </div>
     </div>
 
@@ -23,12 +28,11 @@
         <div class="field col-md-12">
             <label for="description2" class="form-label">Description 2</label>
             <input type="text" class="form-control" pInputText id="description2" formControlName="description2" required autofocus />
-            <small class="p-error invalid-feedback" *ngIf="submitted && !type.tableCode">Description2 is required.</small>
         </div>
     </div>
 
     <div class="d-flex mt-2 justify-content-end">
-        <p-button label="Guardar" icon="pi pi-check" class="me-1"></p-button>
+        <p-button label="Guardar" icon="pi pi-check" class="me-1" (onClick)="onCLickConfirm()"></p-button>
         <p-button label="Cancelar" styleClass="p-button-raised p-button-text p-button-danger"></p-button>
     </div>
 </form>
