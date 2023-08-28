@@ -20,12 +20,28 @@ export class TypeService {
   }
 
   public create(itemType: DTOType): Observable<any> {
-    var objetoJSON = { DTOType: itemType };
+    const objetoJSON = {
+      "DTOType": itemType
+    };
 
-    return this.http.post<number>(this.urlApi + "create", objetoJSON)
+    return this.http.post<number>(this.urlApi + "create", objetoJSON )
     .pipe(
       map(response => { return response }),
-      catchError(error => { return throwError('Something went wrong. Please try again later.'); })
+      catchError(error => {
+        console.log(error)
+        return throwError('Something went wrong. Please try again later.' + error.toString());
+      })
     );
+  }
+
+
+  public update(itemType: DTOType): Observable<any> {
+    var objetoJSON = { DTOType: itemType };
+
+    return this.http.post<number>(this.urlApi + "update", objetoJSON)
+      .pipe(
+        map(response => { return response }),
+        catchError(error => { return throwError('Something went wrong. Please try again later.' + error.toString()); })
+      );
   }
 }
