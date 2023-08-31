@@ -24,7 +24,7 @@ export class TypeService {
       "DTOType": itemType
     };
 
-    return this.http.post<number>(this.urlApi + "create", objetoJSON )
+    return this.http.post<DTOType>(this.urlApi + "create", objetoJSON )
     .pipe(
       map(response => { return response }),
       catchError(error => {
