@@ -55,6 +55,11 @@ export class FormTypeComponent implements OnInit {
         generalTypes: this.generalTypes
       }
     });
+
+    this.ref.onClose.subscribe((type: DTOType) => {
+      console.log(type)
+      this.getInitialTypes()
+    });
   }
 
   deleteSelectedTypes() {
@@ -116,6 +121,11 @@ export class FormTypeComponent implements OnInit {
         selectedType: type,
         generalTypes: this.generalTypes
       }
+    });
+
+    this.ref.onClose.subscribe((type: DTOType) => {
+      console.log(type)
+      this.getInitialTypes()
     });
   }
 
