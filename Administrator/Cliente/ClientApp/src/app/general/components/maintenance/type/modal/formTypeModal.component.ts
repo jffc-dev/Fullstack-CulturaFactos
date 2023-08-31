@@ -77,6 +77,7 @@ export class FormTypeModalComponent implements OnInit {
       this.formGroup.get('tableCode')!.patchValue(selectedType);
       this.formGroup.get('typeCode')!.patchValue(this.type.typeCode);
       this.formGroup.get('description1')!.patchValue(this.type.description1);
+      this.formGroup.get('description2')!.patchValue(this.type.description2);
     } else if (this.typeOperation === TYPE_OPERATION_CREATE) {
 
     }
