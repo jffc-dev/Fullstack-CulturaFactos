@@ -24,33 +24,28 @@
              dataKey="id"
              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
              [showCurrentPageReport]="true"
-             styleClass="p-datatable-sm">
-        <ng-template pTemplate="caption">
-            <div class="flex align-items-center justify-content-between">
-                <h5 class="m-0">Manage types</h5>
-                <span class="p-input-icon-left">
-                    <i class="pi pi-search"></i>
-                    <input pInputText type="text" placeholder="Search..." />
-                </span>
-            </div>
-        </ng-template>
+             styleClass="p-datatable-sm"
+             [rowsPerPageOptions]="[10, 25, 50]"
+             [resizableColumns]="true"
+             rowGroupMode="rowspan"
+             groupRowsBy="tableCode">
         <ng-template pTemplate="header">
             <tr>
                 <th style="width: 4rem">
                     <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
                 </th>
-                <th pSortableColumn="name" style="min-width:15rem">Name<p-sortIcon field="name"></p-sortIcon></th>
-                <th pSortableColumn="code" style="min-width:15rem">Code<p-sortIcon field="code"></p-sortIcon></th>
-                <th pSortableColumn="description" style="min-width:15rem">Description<p-sortIcon field="description"></p-sortIcon></th>
+                <th pResizableColumn pSortableColumn="name" style="min-width:5rem">Name<p-sortIcon field="name"></p-sortIcon></th>
+                <th pResizableColumn pSortableColumn="code" style="min-width:15rem">Code<p-sortIcon field="code"></p-sortIcon></th>
+                <th pResizableColumn pSortableColumn="description" style="min-width:15rem">Description<p-sortIcon field="description"></p-sortIcon></th>
                 <th></th>
             </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-type>
+        <ng-template pTemplate="body" let-type let-rowgroup="rowgroup" let-rowspan="rowspan">
             <tr class="p-selectable-row">
                 <td>
                     <p-tableCheckbox></p-tableCheckbox>
                 </td>
-                <td>
+                <td *ngIf="rowgroup" [attr.rowspan]="rowspan">
                     {{ type.tableCode }}
                 </td>
                 <td>
