@@ -2,7 +2,18 @@
     <div class="row">
         <div class="field col-md-6">
             <label for="tableCode" class="form-label">Table Code</label>
-            <p-dropdown [options]="generalTypes" formControlName="tableCode" optionLabel="tableCode" styleClass="form-control dropdownControl" placeholder="Select a TableCode"></p-dropdown>
+            <p-dropdown [options]="generalTypes" formControlName="tableCode" optionLabel="typeCode" styleClass="form-control dropdownControl" placeholder="Select a TableCode">
+                <ng-template pTemplate="selectedItem">
+                    <div class="flex align-items-center gap-2">
+                        <div>{{ generalTypeSelected.typeCode + " - " + generalTypeSelected.description1 }}</div>
+                    </div>
+                </ng-template>
+                <ng-template let-type pTemplate="item">
+                    <div class="flex align-items-center gap-2">
+                        <div>{{ type.typeCode + " - " + type.description1 }}</div>
+                    </div>
+                </ng-template>
+            </p-dropdown>
         </div>
         <div class="field col-md-6">
             <div class="d-flex justify-content-between">
