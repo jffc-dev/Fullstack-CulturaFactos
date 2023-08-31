@@ -17,6 +17,7 @@ export class FormTypeModalComponent implements OnInit {
   generalTypes!: DTOType[];
   typeOperation: string = "";
   checkboxValue: string = "GENERAL";
+  generalTypeSelected!: DTOType;
 
   constructor(public ref: DynamicDialogRef, public config: DynamicDialogConfig, private typeService: TypeService) { }
 
@@ -48,6 +49,7 @@ export class FormTypeModalComponent implements OnInit {
       if (newValue) {
         if (newValue.includes(this.checkboxValue)) {
           this.formGroup.get('tableCode')!.disable();
+          this.formGroup.get('tableCode')!.patchValue(null);
           this.formGroup.get('typeCode')!.enable();
         } else {
           this.formGroup.get('tableCode')!.enable();
@@ -55,18 +57,24 @@ export class FormTypeModalComponent implements OnInit {
         }
       }
     });
+
+    this.formGroup.get('tableCode')!.valueChanges.subscribe((newValue: DTOType) => {
+      console.log(newValue)
+      this.generalTypeSelected = newValue;
+    });
   }
 
   getInitialData() {
     this.typeOperation = this.config.data.typeOperation;
     this.type = this.config.data.selectedType;
     this.generalTypes = this.config.data.generalTypes;
-    console.log(this.config.data.selectedType)
   }
 
   setDataForm() {
     if (this.typeOperation === TYPE_OPERATION_UPDATE) {
-      this.formGroup.get('tableCode')!.patchValue(this.type.tableCode);
+      var selectedType: DTOType = this.generalTypes.find(general => general.typeCode === this.type.tableCode)!;
+      console.log(selectedType)
+      this.formGroup.get('tableCode')!.patchValue(selectedType);
       this.formGroup.get('typeCode')!.patchValue(this.type.typeCode);
       this.formGroup.get('description1')!.patchValue(this.type.description1);
     } else if (this.typeOperation === TYPE_OPERATION_CREATE) {
@@ -108,7 +116,8 @@ export class FormTypeModalComponent implements OnInit {
     if (this.formGroup.get('tableCode')!.value === null) {
       typeToSave.tableCode = TYPE_GENERAL_TYPES;
     } else {
-      typeToSave.tableCode = this.formGroup.get('tableCode')!.value;
+      const selectedType: DTOType = this.formGroup.get('tableCode')!.value;
+      typeToSave.tableCode = selectedType.typeCode;
     }
     typeToSave.typeCode = this.formGroup.get('typeCode')!.value;
     typeToSave.description1 = this.formGroup.get('description1')!.value;
@@ -116,15 +125,18 @@ export class FormTypeModalComponent implements OnInit {
 
     this.typeService.create(typeToSave).subscribe((data) => {
       console.log(data);
+      this.ref.close(data);
     });
   }
 
   updateType() {
-    const typeToSave: DTOType = {};
-    typeToSave.tableCode = this.formGroup.get('tableCode')!.value;
+    console.log(this.formGroup.get('typeCode')!.value);
+    console.log(this.formGroup.get('tableCode')!.value);
+    //const typeToSave: DTOType = {};
+    //typeToSave.tableCode = this.formGroup.get('tableCode')!.value;
 
-    this.typeService.update(typeToSave).subscribe((data) => {
-      console.log(data);
-    });
+    //this.typeService.update(typeToSave).subscribe((data) => {
+    //  console.log(data);
+    //});
   }
 }
