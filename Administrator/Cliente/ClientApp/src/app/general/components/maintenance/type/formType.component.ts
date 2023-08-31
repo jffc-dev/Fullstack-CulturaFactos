@@ -1,20 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { Type } from '../../../domain/type';
+import { DTOType } from '../../../domain/type';
 import { TypeService } from '../../../services/type/type.service';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FormTypeModalComponent } from './modal/formTypeModal.component';
+import { TYPE_OPERATION_CREATE, TYPE_OPERATION_UPDATE, TYPE_GENERAL_TYPES } from '../../../../../constants/general/general.constants';
 
 @Component({
   selector: 'form-type-maintenance',
   templateUrl: './formType.component.html',
+  styleUrls: ['./formType.component.css'],
   providers: [MessageService, ConfirmationService, DialogService]
 })
 export class FormTypeComponent implements OnInit {
   typeDialog: boolean = false;
-  types!: Type[];
-  typesSelect!: Type[];
-  selectedTypes!: Type[] | null;
+  types!: DTOType[];
+  generalTypes!: DTOType[];
+  selectedTypes!: DTOType[] | null;
 
   ref: DynamicDialogRef | undefined;
 
@@ -34,19 +36,24 @@ export class FormTypeComponent implements OnInit {
   }
 
   getInitialTypes() {
-    this.typeService.list().subscribe((data) => {
-      console.log(data)
+    this.typeService.read().subscribe((data) => {
       this.types = data;
+      this.generalTypes = data.filter((type) => type.tableCode === TYPE_GENERAL_TYPES)
     });
   }
 
   openNew() {
     this.ref = this.dialogService.open(FormTypeModalComponent, {
-      header: 'Select a Product',
+      header: 'Create a Type',
       width: '70%',
       contentStyle: { overflow: 'auto' },
       baseZIndex: 10000,
-      maximizable: true
+      maximizable: true,
+      data: {
+        typeOperation: TYPE_OPERATION_CREATE,
+        selectedType: null,
+        generalTypes: this.generalTypes
+      }
     });
   }
 
@@ -97,20 +104,33 @@ export class FormTypeComponent implements OnInit {
     }
   }
 
-  editType(type: Type) {
-    //this.type = { ...type };
-    this.typeDialog = true;
+  editType(type: DTOType) {
+    this.ref = this.dialogService.open(FormTypeModalComponent, {
+      header: 'Edit a Type',
+      width: '70%',
+      contentStyle: { overflow: 'auto' },
+      baseZIndex: 10000,
+      maximizable: true,
+      data: {
+        typeOperation: TYPE_OPERATION_UPDATE,
+        selectedType: type,
+        generalTypes: this.generalTypes
+      }
+    });
   }
 
-  deleteType(type: Type) {
+  deleteType(type: DTOType) {
     this.confirmationService.confirm({
-        message: 'Are you sure you want to delete ' + type.tableCode + '?',
+        message: 'Are you sure you want to delete, ' + type.tableCode + ' - ' + type.description1 + '?',
         header: 'Confirm',
         icon: 'pi pi-exclamation-triangle',
-        accept: () => {
+      accept: () => {
+        this.typeService.delete(type).subscribe((data) => {
+          console.log(data);
           this.types = this.types.filter((val) => val.id !== type.id);
           //this.type = {};
-          this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
+          this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Type Deleted', life: 3000 });
+        });
         }
     });
   }
