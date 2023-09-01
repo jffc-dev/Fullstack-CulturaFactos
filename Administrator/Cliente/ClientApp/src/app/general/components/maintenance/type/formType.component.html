@@ -43,7 +43,7 @@
         <ng-template pTemplate="body" let-type let-rowgroup="rowgroup" let-rowspan="rowspan">
             <tr class="p-selectable-row">
                 <td>
-                    <p-tableCheckbox></p-tableCheckbox>
+                    <p-tableCheckbox [value]="type"></p-tableCheckbox>
                 </td>
                 <td *ngIf="rowgroup" [attr.rowspan]="rowspan">
                     {{ type.tableCode }}
