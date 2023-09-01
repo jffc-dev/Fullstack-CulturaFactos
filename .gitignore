@@ -3,3 +3,4 @@ node_modules
 players*.json
 teams_*.json
 .vs
+obj/Debug/*
