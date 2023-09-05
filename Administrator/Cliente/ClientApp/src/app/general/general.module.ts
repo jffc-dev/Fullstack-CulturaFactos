@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
@@ -19,6 +19,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
+import { DynamicDialogModule } from 'primeng/dynamicdialog';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @NgModule({
   declarations: [
@@ -43,7 +45,10 @@ import { DropdownModule } from 'primeng/dropdown';
     InputTextModule,
     ToolbarModule,
     ButtonModule,
-    DropdownModule
+    DropdownModule,
+    DynamicDialogModule,
+    ReactiveFormsModule,
+    CheckboxModule
   ],
   providers: [],
   bootstrap: []
