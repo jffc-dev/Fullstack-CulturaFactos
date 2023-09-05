@@ -4,7 +4,7 @@ import { DTOType } from '../../../domain/type';
 import { TypeService } from '../../../services/type/type.service';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FormTypeModalComponent } from './modal/formTypeModal.component';
-import { TYPE_OPERATION_CREATE, TYPE_OPERATION_UPDATE, TYPE_GENERAL_TYPES } from '../../../../../constants/general/general.constants';
+import { TYPE_OPERATION_CREATE, TYPE_OPERATION_UPDATE, TYPE_GENERAL_TYPES } from '../../../../../constants/type/type.constants';
 
 @Component({
   selector: 'form-type-maintenance',
@@ -52,7 +52,8 @@ export class FormTypeComponent implements OnInit {
       data: {
         typeOperation: TYPE_OPERATION_CREATE,
         selectedType: null,
-        generalTypes: this.generalTypes
+        generalTypes: this.generalTypes,
+        messageService: this.messageService
       }
     });
 
