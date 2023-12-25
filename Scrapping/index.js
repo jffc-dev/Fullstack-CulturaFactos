@@ -5,6 +5,8 @@ import { createMultiplePlayers } from './mongo/player.js'
 import { readDBFile } from './utils.js'
 import { cleanSeasonsByLeague, cleanTeamsLinksInSeasonsByLeague, scrapLeagues } from './continentalLeagues.js'
 import { STEP_1_CLEANINVALIDTEAMS, STEP_2_CLEANSEASONTEAMS } from './utils/consts.js'
+import { migrateCoutries } from './migrate/types.js'
+import { getUserByUsername } from './migrate/user.js'
 
 dotenv.config()
 
@@ -14,10 +16,13 @@ const urlLeague = process.env.URL_EREDIVISIE
 const urlLeagues = JSON.parse(process.env.URL_CONTINENTAL_LEAGUES.replace(/'/g, '"'))
 const urlLeagueBase = process.env.URL_CONTINENTAL_LEAGUE_BASE
 
+await migrateCoutries()
 // const array = await readDBFile('seasonsByLeague')
 // console.log(array.length);
 // await cleanTeamsLinksInSeasonsByLeague(true,STEP_2_CLEANSEASONTEAMS,false)
-await scrapLeagues(urlLeagues, urlLeagueBase, urlBase);
+// await scrapLeagues(urlLeagues, urlLeagueBase, urlBase);
+// await migrateCoutries();
+
 // await cleanSeasonsByLeague()
 
 // await getNameTeams(urlBase, urlLeague, 'teams_eredivisie')
